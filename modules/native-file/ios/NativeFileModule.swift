@@ -118,7 +118,7 @@ public class NativeFileModule: Module {
     AsyncFunction("createDocument") { (filename: String, mimeType: String, promise: Promise) in
       DispatchQueue.main.async {
         let utType = Self.utType(forMimeType: mimeType) ?? .data
-        let picker = UIDocumentPickerViewController(forExporting: [utType], asCopy: false)
+        let picker = UIDocumentPickerViewController(forExporting: [utType] as [UTType], asCopy: false)
         picker.nameFieldStringValue = filename
         Self.presentPicker(picker) { urls in
           guard let url = urls.first else {
@@ -139,7 +139,7 @@ public class NativeFileModule: Module {
     AsyncFunction("pickDocument") { (mimeType: String, promise: Promise) in
       DispatchQueue.main.async {
         let utType = Self.utType(forMimeType: mimeType) ?? .data
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [utType], asCopy: true)
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [utType] as [UTType], asCopy: true)
         Self.presentPicker(picker) { urls in
           guard let url = urls.first else {
             promise.reject("USER_CANCELED", "No document selected")
@@ -155,7 +155,7 @@ public class NativeFileModule: Module {
     AsyncFunction("pickDirectory") { (promise: Promise) in
       DispatchQueue.main.async {
         let picker = UIDocumentPickerViewController(
-          forOpeningContentTypes: [.folder],
+          forOpeningContentTypes: [.folder] as [UTType],
           asCopy: false
         )
         Self.presentPicker(picker) { urls in
