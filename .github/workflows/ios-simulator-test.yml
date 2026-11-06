@@ -149,7 +149,13 @@ jobs:
           # the newest available iOS runtime. Device compatibility with
           # iPadOS 18.5 is guaranteed by MinOS 16.4 <= 18.5 + arm64 (verified
           # in the IPA pipeline), not by the simulator runtime version.
-          RUNTIME=$(xcrun simctl list runtimes | grep 'iOS 18.5' | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-5' || true)
+          # Target-device fidelity: try to fetch the exact iOS 18.5 runtime
+          # (iPad 7th gen ships iPadOS 18.5). Non-fatal when unavailable.
+          if ! xcrun simctl list runtimes | grep -q 'iOS 18.5'; then
+            xcodebuild -downloadPlatform iOS -buildVersion 18.5 || \
+              echo "::warning::iOS 18.5 runtime unavailable — using fallback"
+          fi
+RUNTIME=$(xcrun simctl list runtimes | grep 'iOS 18.5' | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-5' || true)
           if [ -z "$RUNTIME" ]; then
             RUNTIME=$(xcrun simctl list runtimes | grep -E 'iOS 18\.' | tail -1 | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-[0-9]+' || true)
           fi
@@ -164,14 +170,21 @@ jobs:
           # 'extract second paren group' sed grabs "7th generation" (run #15:
           # 'Invalid device type: 7th generation'). Extract the identifier
           # directly instead.
-          DEVICE_TYPE=$(xcrun simctl list devicetypes | grep 'iPad (7th generation)' | head -1 | grep -oE 'com\.apple\.CoreSimulator\.SimDeviceInfoType[^,)]+' | head -1 || true)
+          # The identifier token in `simctl list devicetypes` output is
+          # "SimDeviceType" (run #19 confirmed SimDeviceInfoType never
+          # matches — result was an empty DEVICE_TYPE).
+          DEVICE_TYPE=$(xcrun simctl list devicetypes | grep 'iPad (7th generation)' | grep -oE 'com\.apple\.CoreSimulator\.SimDeviceType\.[A-Za-z0-9-]+' | head -1 || true)
           if [ -z "$DEVICE_TYPE" ]; then
-            DEVICE_TYPE=$(xcrun simctl list devicetypes | grep -E '^iPad \(' | tail -1 | grep -oE 'com\.apple\.CoreSimulator\.SimDeviceInfoType[^,)]+' | head -1 || true)
+            # Newer runtimes may drop the A10-era device type — any iPad
+            # satisfies the launch/stability smoke test; the actually used
+            # device+runtime pair is recorded in SIM_RUNTIME_USED.
+            DEVICE_TYPE=$(xcrun simctl list devicetypes | grep -E '\(com\.apple\.CoreSimulator\.SimDeviceType\.iPad' | head -1 | grep -oE 'com\.apple\.CoreSimulator\.SimDeviceType\.[A-Za-z0-9-]+' || true)
           fi
           echo "Device type: $DEVICE_TYPE"
           test -n "$DEVICE_TYPE" || { echo "::error::no iPad devicetype found"; exit 1; }
 
           xcrun simctl create "$SIM_NAME" "$DEVICE_TYPE" "$RUNTIME"
+          echo "SIM_RUNTIME_USED=$RUNTIME" >> "$GITHUB_ENV"
           xcrun simctl boot "$SIM_NAME"
           xcrun simctl bootstatus "$SIM_NAME" -b
           xcrun simctl list devices | grep -A 5 -i booted || true
