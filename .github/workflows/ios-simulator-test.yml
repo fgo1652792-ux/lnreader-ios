@@ -155,7 +155,7 @@ jobs:
             xcodebuild -downloadPlatform iOS -buildVersion 18.5 || \
               echo "::warning::iOS 18.5 runtime unavailable — using fallback"
           fi
-RUNTIME=$(xcrun simctl list runtimes | grep 'iOS 18.5' | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-5' || true)
+          RUNTIME=$(xcrun simctl list runtimes | grep 'iOS 18.5' | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-5' || true)
           if [ -z "$RUNTIME" ]; then
             RUNTIME=$(xcrun simctl list runtimes | grep -E 'iOS 18\.' | tail -1 | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-[0-9]+' || true)
           fi
