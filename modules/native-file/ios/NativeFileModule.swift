@@ -124,6 +124,9 @@ public class NativeFileModule: Module {
       DispatchQueue.main.async {
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
         FileManager.default.createFile(atPath: tempURL.path, contents: Data())
+        // iOS 26 SDK: nameFieldStringValue was removed from the public API.
+        // The URL-based export picker suggests the staged file's name
+        // automatically (the temp file is named after `filename`).
         let picker = UIDocumentPickerViewController(forExporting: [tempURL], asCopy: false)
         Self.presentPicker(picker) { urls in
           guard let url = urls.first else {
