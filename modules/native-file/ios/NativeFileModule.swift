@@ -115,13 +115,20 @@ public class NativeFileModule: Module {
 
     /// Creates a new empty document at a user-chosen location (equivalent of
     /// Android's ACTION_CREATE_DOCUMENT). Returns the file path to write into.
+    /// NOTE: the modern iOS SDK (26.x) exposes `init(forExporting urls: [URL],
+    /// asCopy: Bool)` — the UTType-based export initializer is gone — so we
+    /// stage an empty temp file and let the export picker move it into place.
+    /// The mimeType parameter is kept for TS API compatibility; the picker no
+    /// longer enforces it natively.
     AsyncFunction("createDocument") { (filename: String, mimeType: String, promise: Promise) in
       DispatchQueue.main.async {
-        let utType = Self.utType(forMimeType: mimeType) ?? .data
-        let picker = UIDocumentPickerViewController(forExporting: [utType] as [UTType], asCopy: false)
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
+        FileManager.default.createFile(atPath: tempURL.path, contents: Data())
+        let picker = UIDocumentPickerViewController(forExporting: [tempURL], asCopy: false)
         picker.nameFieldStringValue = filename
         Self.presentPicker(picker) { urls in
           guard let url = urls.first else {
+            try? FileManager.default.removeItem(at: tempURL)
             promise.reject("USER_CANCELED", "No document selected")
             return
           }
@@ -129,6 +136,7 @@ public class NativeFileModule: Module {
           if !FileManager.default.fileExists(atPath: url.path) {
             FileManager.default.createFile(atPath: url.path, contents: Data())
           }
+          try? FileManager.default.removeItem(at: tempURL)
           promise.resolve(url.path)
         }
       }
@@ -139,7 +147,7 @@ public class NativeFileModule: Module {
     AsyncFunction("pickDocument") { (mimeType: String, promise: Promise) in
       DispatchQueue.main.async {
         let utType = Self.utType(forMimeType: mimeType) ?? .data
-        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [utType] as [UTType], asCopy: true)
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [utType], asCopy: true)
         Self.presentPicker(picker) { urls in
           guard let url = urls.first else {
             promise.reject("USER_CANCELED", "No document selected")
@@ -155,7 +163,7 @@ public class NativeFileModule: Module {
     AsyncFunction("pickDirectory") { (promise: Promise) in
       DispatchQueue.main.async {
         let picker = UIDocumentPickerViewController(
-          forOpeningContentTypes: [.folder] as [UTType],
+          forOpeningContentTypes: [.folder],
           asCopy: false
         )
         Self.presentPicker(picker) { urls in
