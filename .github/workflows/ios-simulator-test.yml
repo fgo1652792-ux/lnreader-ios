@@ -140,25 +140,36 @@ jobs:
           test -f "$APP/ReaderAssets/fonts/lato.ttf" || { echo "MISSING fonts"; exit 1; }
           echo "ReaderAssets present in simulator app bundle ✓"
 
-      - name: Create + boot iPad (7th generation) on iOS 18.5
+      - name: Create + boot iPad (7th generation) on newest iOS runtime
         run: |
           set -x
-          # Prefer the exact target runtime (18.5); fall back to any 18.x,
-          # then to the newest available iOS runtime.
-          RUNTIME=$(xcrun simctl list runtimes | grep 'iOS 18.5' | grep -oE 'com.apple.CoreSimulator.SimRuntime.iOS-18-5' || true)
+          # Prefer the exact target runtime (18.5), then any 18.x. NOTE: the
+          # macos-26 runner image no longer ships iOS 18.x runtimes (only
+          # 26.1-26.5 — see run #15 logs), so launch testing falls back to
+          # the newest available iOS runtime. Device compatibility with
+          # iPadOS 18.5 is guaranteed by MinOS 16.4 <= 18.5 + arm64 (verified
+          # in the IPA pipeline), not by the simulator runtime version.
+          RUNTIME=$(xcrun simctl list runtimes | grep 'iOS 18.5' | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-5' || true)
           if [ -z "$RUNTIME" ]; then
-            RUNTIME=$(xcrun simctl list runtimes | grep -E 'iOS 18\.' | tail -1 | grep -oE 'com.apple.CoreSimulator.SimRuntime.iOS-18-[0-9]+' || true)
+            RUNTIME=$(xcrun simctl list runtimes | grep -E 'iOS 18\.' | tail -1 | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-18-[0-9]+' || true)
           fi
           if [ -z "$RUNTIME" ]; then
-            RUNTIME=$(xcrun simctl list runtimes | grep -oE 'com.apple.CoreSimulator.SimRuntime.iOS-[0-9]+-[0-9]+' | tail -1)
+            RUNTIME=$(xcrun simctl list runtimes | grep -oE 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-[0-9]+-[0-9]+' | tail -1)
           fi
           echo "Using runtime: $RUNTIME"
 
-          DEVICE_TYPE=$(xcrun simctl list devicetypes | grep 'iPad (7th generation)' | head -1 | sed -E 's/^ *([^(]+) \(([^)]+)\).*/\2/' || true)
+          # NOTE: the human-readable devicetype line is
+          #   "iPad (7th generation) (com.apple.CoreSimulator.SimDeviceInfoType.…)"
+          # — the NAME ITSELF contains parentheses, so a generic
+          # 'extract second paren group' sed grabs "7th generation" (run #15:
+          # 'Invalid device type: 7th generation'). Extract the identifier
+          # directly instead.
+          DEVICE_TYPE=$(xcrun simctl list devicetypes | grep 'iPad (7th generation)' | head -1 | grep -oE 'com\.apple\.CoreSimulator\.SimDeviceInfoType[^,)]+' | head -1 || true)
           if [ -z "$DEVICE_TYPE" ]; then
-            DEVICE_TYPE=$(xcrun simctl list devicetypes | grep -i ipad | head -1 | sed -E 's/^ *([^(]+) \(([^)]+)\).*/\2/')
+            DEVICE_TYPE=$(xcrun simctl list devicetypes | grep -E '^iPad \(' | tail -1 | grep -oE 'com\.apple\.CoreSimulator\.SimDeviceInfoType[^,)]+' | head -1 || true)
           fi
           echo "Device type: $DEVICE_TYPE"
+          test -n "$DEVICE_TYPE" || { echo "::error::no iPad devicetype found"; exit 1; }
 
           xcrun simctl create "$SIM_NAME" "$DEVICE_TYPE" "$RUNTIME"
           xcrun simctl boot "$SIM_NAME"
