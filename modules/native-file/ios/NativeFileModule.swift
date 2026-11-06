@@ -125,7 +125,6 @@ public class NativeFileModule: Module {
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(filename)
         FileManager.default.createFile(atPath: tempURL.path, contents: Data())
         let picker = UIDocumentPickerViewController(forExporting: [tempURL], asCopy: false)
-        picker.nameFieldStringValue = filename
         Self.presentPicker(picker) { urls in
           guard let url = urls.first else {
             try? FileManager.default.removeItem(at: tempURL)
