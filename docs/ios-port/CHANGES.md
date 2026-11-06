@@ -72,3 +72,25 @@
 | sunovels | **العربية** | ✅ | 50 فصلًا (مصدر مترقم عبر parsePage) |
 | kakuyomu | اليابانية | ✅ سابقًا / ⚠️ تذبذب rate-limit | مرّ مرتين بمحتوى كامل |
 | royalroad/novelbin/quanben/linovelib | مختلطة | ❌ حجب IP مركز بيانات (403/سلوك Cloudflare) | قيد بيئي وليس عيب محرك |
+
+## W8 — رحلة تثبيت CI (28 تشغيلًا حتى الأخضر الكامل)
+
+كل فشل شُخّص من سجلاته الفعلية وأُصلح من جذره:
+
+| التشغيلات | السبب الجذري | الإصلاح |
+|---|---|---|
+| #2–#13 | صورة macos-26 افتراضيًا Xcode 16.4 (Swift tools 6.1) وحزم Expo 57 تطلب 6.2 | تثبيت Xcode 26.1.1 عبر xcode-select |
+| #14 | Xcode 26 يأتي بدون مكونات منصة iOS (تنزيل عند الطلب) | `xcodebuild -downloadPlatform iOS` |
+| #17/#18 | CoreSimulatorService عالق ("Unable to connect to simulator") | kickstart + إعادة محاولة ×3 |
+| #15/#19 | `weak let` (SE-0481) في expo-modules-jsi/core — ميزة Swift 6.3 فقط | pnpm patch: WeakRuntimeBox يحفظ دلالات الضعف الحقيقية + weak var للـ actors |
+| #19 | غموض `abs()` مع C++ interop في Swift 6.2 | `magnitude` (مطابق لـ upstream 57.1.3) |
+| #21 | `Promise.reject(code,msg,err)` و`resolve(with:)` غير موجودتين في واجهة expo Promise | التواقيع الثنائية + تمرير القيمة مباشرة |
+| #23 | iOS 26 SDK غيّر `forExporting` ليقبل `[URL]` بدل `[UTType]` | ملف مؤقت + منتقي URL |
+| #25 | `nameFieldStringValue` حُذفت من واجهة المنتقي في iOS 26 | الاسم يأتي من الملف المؤقت |
+| #26 | node-xcode يكتب `path = undefined` حرفيًا → Xcode يحل المسار تحت ios/undefined/ | تثبيت المرجع على SOURCE_ROOT |
+| #15/#16 | قوسان في اسم الجهاز + تقاعد iPad 7th gen من الصورة + توكن SimDeviceType | استخراج المعرّف مباشرة + fallback لأي iPad |
+| #18 | iOS 18.x حُذفت من صورة المشغل | تنزيل runtime iOS 18.5 عند الطلب → **الإقلاع على نفس نظام الجهاز المستهدف** |
+
+النتيجة النهائية (commit 36932cd7):
+- `iOS IPA Build` ✅ أخضر (IPA غير موقع 21MB، arm64، MinOS 16.4)
+- `iOS Simulator Test` ✅ أخضر (iPad 7th gen + iOS 18.5، إقلاع + استقرار 120s + لقطات)
