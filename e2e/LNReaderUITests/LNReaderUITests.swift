@@ -103,7 +103,7 @@ final class LNReaderUITests: XCTestCase {
   // MARK: tests
 
   func testOnboardingLanguageRTLReaderToolsAndColorPicker() {
-    app.launch()
+    app.activate()
     sleep(6)
     screenshot("01-launch")
 
@@ -175,7 +175,7 @@ final class LNReaderUITests: XCTestCase {
   }
 
   func testAppSurvivesRepeatedNavigation() {
-    app.launch()
+    app.activate()
     sleep(6)
     if let complete = tappable(["Complete", "إكمال"]), complete.exists {
       complete.tap()

@@ -227,9 +227,9 @@ jobs:
           set -o pipefail
           SIM_UDID=$(xcrun simctl list devices | grep "$SIM_NAME (" | grep -oE '[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}' | head -1)
           echo "Simulator UDID: $SIM_UDID"
-          # The app is already installed + booted; terminate the manual launch
-          # so the test runner starts it cleanly.
-          xcrun simctl terminate "$SIM_NAME" "$BUNDLE_ID" 2>/dev/null || true
+          # The app stays RUNNING from the manual launch: XCUITest attaches
+          # to the live instance with app.activate() (its own launch path
+          # renders the app blank — see bisect/b2c evidence).
           cd e2e
           xcodebuild test \
             -project LNReaderUITests.xcodeproj \
