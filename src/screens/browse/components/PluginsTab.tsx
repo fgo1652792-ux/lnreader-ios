@@ -413,9 +413,9 @@ const styles = StyleSheet.create({
   },
   pluginRowAction: {
     bottom: 0,
-    left: 0,
+    start: 0,
     position: 'absolute',
-    right: 0,
+    end: 0,
     top: 0,
   },
   sectionHeader: {

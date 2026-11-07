@@ -13,6 +13,7 @@ import { ErrorView } from '@components/ErrorView/ErrorView';
 import { SafeAreaView, SearchbarV2 } from '@components';
 
 import { showToast } from '@utils/showToast';
+import { getString } from '@i18n/translations';
 import DiscoverNovelCard from './DiscoverNovelCard';
 import { useTheme, useTracker } from '@hooks/persisted';
 import TrackerLoading from '../loadingAnimation/TrackerLoading';
@@ -166,10 +167,10 @@ const BrowseALScreen = ({ navigation }: BrowseALScreenProps) => {
   const ListEmptyComponent = useCallback(
     () => (
       <ErrorView
-        errorName={error || 'No results found'}
+        errorName={error || getString('browseScreen.noResultsFound')}
         actions={[
           {
-            name: 'Retry',
+            name: getString('common.retry'),
             onPress: () => {
               setLoading(true);
               setError(undefined);
@@ -188,7 +189,7 @@ const BrowseALScreen = ({ navigation }: BrowseALScreenProps) => {
     <SafeAreaView>
       <SearchbarV2
         theme={theme}
-        placeholder="Search AniList"
+        placeholder={getString('browseScreen.searchAniList')}
         leftIcon="arrow-left"
         handleBackAction={() => navigation.goBack()}
         searchText={searchText}

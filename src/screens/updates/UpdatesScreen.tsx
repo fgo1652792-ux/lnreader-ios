@@ -8,6 +8,7 @@ import {
   SearchbarV2,
   SafeAreaView,
 } from '@components';
+import { RightIcon } from '@components/SearchbarV2/SearchbarV2';
 
 import { useSearch } from '@hooks';
 import { useAppSettings, useTheme } from '@hooks/persisted';
@@ -35,9 +36,12 @@ const UpdatesScreen = ({ navigation }: UpdateScreenProps) => {
     error,
   } = useUpdateContext();
   const { searchText, setSearchText, clearSearchbar } = useSearch();
-  const onChangeText = (text: string) => {
-    setSearchText(text);
-  };
+  const onChangeText = useCallback(
+    (text: string) => {
+      setSearchText(text);
+    },
+    [setSearchText],
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -73,6 +77,44 @@ const UpdatesScreen = ({ navigation }: UpdateScreenProps) => {
     [searchText, updatesOverview],
   );
 
+  const rightIcons = useMemo<RightIcon[]>(
+    () => [
+      {
+        iconName: 'reload',
+        onPress: () => backgroundTasks.enqueue({ name: 'UPDATE_LIBRARY' }),
+      },
+    ],
+    [],
+  );
+
+  const onRefresh = useCallback(() => {
+    backgroundTasks.enqueue({ name: 'UPDATE_LIBRARY' });
+  }, []);
+
+  const renderItem = useCallback(
+    ({ item }: { item: UpdateOverview }) => (
+      <UpdateNovelChapterGroup
+        onDeleteChapter={chapter => {
+          deleteChapter(
+            chapter.pluginId,
+            chapter.novelId,
+            chapter.id,
+          ).then(() => {
+            showToast(
+              getString('common.deleted', {
+                name: chapter.name,
+              }),
+            );
+            getUpdates();
+          });
+        }}
+        overview={item}
+        chapterCountLabel={getString('updatesScreen.updatesLower')}
+      />
+    ),
+    [getUpdates],
+  );
+
   useEffect(
     () =>
       navigation.addListener('tabPress', e => {
@@ -96,12 +138,7 @@ const UpdatesScreen = ({ navigation }: UpdateScreenProps) => {
         onChangeText={onChangeText}
         leftIcon="magnify"
         theme={theme}
-        rightIcons={[
-          {
-            iconName: 'reload',
-            onPress: () => backgroundTasks.enqueue({ name: 'UPDATE_LIBRARY' }),
-          },
-        ]}
+        rightIcons={rightIcons}
       />
       {error ? (
         <ErrorScreenV2 error={error} />
@@ -122,26 +159,7 @@ const UpdatesScreen = ({ navigation }: UpdateScreenProps) => {
           keyExtractor={item =>
             `updatedGroup-${item.novelId}-${item.updateDate}-${item.updatesPerDay}`
           }
-          renderItem={({ item }) => (
-            <UpdateNovelChapterGroup
-              onDeleteChapter={chapter => {
-                deleteChapter(
-                  chapter.pluginId,
-                  chapter.novelId,
-                  chapter.id,
-                ).then(() => {
-                  showToast(
-                    getString('common.deleted', {
-                      name: chapter.name,
-                    }),
-                  );
-                  getUpdates();
-                });
-              }}
-              overview={item}
-              chapterCountLabel={getString('updatesScreen.updatesLower')}
-            />
-          )}
+          renderItem={renderItem}
           ListEmptyComponent={
             <EmptyView
               icon="(˘･_･˘)"
@@ -152,9 +170,7 @@ const UpdatesScreen = ({ navigation }: UpdateScreenProps) => {
           refreshControl={
             <RefreshControl
               refreshing={false}
-              onRefresh={() =>
-                backgroundTasks.enqueue({ name: 'UPDATE_LIBRARY' })
-              }
+              onRefresh={onRefresh}
               colors={[theme.onPrimary]}
               progressBackgroundColor={theme.primary}
             />

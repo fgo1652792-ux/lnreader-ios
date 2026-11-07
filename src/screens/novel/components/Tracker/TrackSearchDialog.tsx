@@ -258,7 +258,10 @@ const TrackSearchDialog: React.FC<TrackSearchDialogProps> = ({
           title={getString('common.cancel')}
           onPress={handleDismiss}
         />
-        <Dialog.Action title="OK" onPress={handleConfirm} />
+        <Dialog.Action
+          title={getString('trackScreen.ok')}
+          onPress={handleConfirm}
+        />
       </Dialog.Actions>
     </Dialog.Root>
   );
@@ -269,7 +272,7 @@ export default TrackSearchDialog;
 const styles = StyleSheet.create({
   checkIcon: {
     position: 'absolute',
-    right: 8,
+    end: 8,
     top: 8,
     zIndex: 1,
   },
@@ -285,9 +288,9 @@ const styles = StyleSheet.create({
     flex: 1,
     flexWrap: 'wrap',
     fontSize: 16,
-    marginLeft: 20,
+    marginStart: 20,
     padding: 8,
-    paddingLeft: 0,
+    paddingStart: 0,
   },
   resultsList: {
     flexGrow: 1,

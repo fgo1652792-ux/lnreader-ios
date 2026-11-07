@@ -23,6 +23,18 @@ type WebViewPostEvent = {
   msg?: string;
 };
 
+/** Defensive parse: see WebViewReader.parseWebViewEvent. */
+const parseWebViewEvent = (raw: string): WebViewPostEvent | null => {
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && parsed.type
+      ? (parsed as WebViewPostEvent)
+      : null;
+  } catch {
+    return null;
+  }
+};
+
 type SettingsReaderWebViewProps = {
   customCSS?: string;
   customJS?: string;
@@ -165,14 +177,19 @@ const SettingsReaderWebView = ({
       style={[styles.webView, { backgroundColor: readerBackgroundColor }]}
       nestedScrollEnabled={true}
       onMessage={(ev: { nativeEvent: { data: string } }) => {
-        const event: WebViewPostEvent = JSON.parse(ev.nativeEvent.data);
+        const event = parseWebViewEvent(ev.nativeEvent.data);
+        if (!event) {
+          return;
+        }
         switch (event.type) {
           case 'hide':
-            if (hidden) {
-              webViewRef.current?.injectJavaScript('reader.hidden.val = true');
-            } else {
-              webViewRef.current?.injectJavaScript('reader.hidden.val = false');
-            }
+            // Inject the *new* value: injecting the pre-toggle value kept the
+            // in-page seekbar permanently out of sync with RN state.
+            webViewRef.current?.injectJavaScript(
+              `if (window.reader?.hidden) { reader.hidden.val = ${
+                hidden ? 'false' : 'true'
+              }; } true;`,
+            );
             setHidden(!hidden);
             break;
           case 'tts-queue': {

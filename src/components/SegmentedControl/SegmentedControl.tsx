@@ -137,9 +137,9 @@ const styles = StyleSheet.create({
     letterSpacing: 0.1,
   },
   checkIcon: {
-    marginRight: 8,
+    marginEnd: 8,
   },
   icon: {
-    marginRight: 8,
+    marginEnd: 8,
   },
 });

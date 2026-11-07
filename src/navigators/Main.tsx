@@ -117,12 +117,18 @@ const MainNavigator = () => {
           <AppUpdateChecker />
           <Stack.Navigator
             screenOptions={{
-              animation: 'none',
+              // Native push/pop transitions everywhere except the tab
+              // container, which must switch instantly.
+              animation: 'default',
               contentStyle: { backgroundColor: theme.background },
               headerShown: false,
             }}
           >
-            <Stack.Screen name="BottomNavigator" component={BottomNavigator} />
+            <Stack.Screen
+              name="BottomNavigator"
+              component={BottomNavigator}
+              options={{ animation: 'none' }}
+            />
             <Stack.Screen name="ReaderStack" component={ReaderStack} />
             <Stack.Screen name="MoreStack" component={MoreStack} />
             <Stack.Screen name="SourceScreen" component={BrowseSourceScreen} />

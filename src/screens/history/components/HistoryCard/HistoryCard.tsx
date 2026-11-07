@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     bottom: 8,
     justifyContent: 'center',
     position: 'absolute',
-    right: 16,
+    end: 16,
     top: 8,
   },
   buttonSpacer: {

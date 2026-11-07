@@ -22,6 +22,7 @@ import { useBackHandler } from '@hooks/index';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   InteractionManager,
+  I18nManager,
   Keyboard,
   Share,
   StyleSheet,
@@ -100,6 +101,7 @@ const ReaderDrawerLayout = ({ route, navigation }: ChapterScreenProps) => {
   return (
     <Drawer
       drawerStyle={drawerStyle}
+      drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
       open={open}
       onOpen={openDrawer}
       onClose={closeDrawer}

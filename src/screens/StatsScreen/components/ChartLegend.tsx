@@ -1,7 +1,10 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { I18nManager, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { ThemeColors } from '@theme/types';
 import Animated from 'react-native-reanimated';
+
+// Keep numeric columns aligned toward the trailing edge in RTL layouts.
+const numericTextAlign = I18nManager.isRTL ? 'left' : 'right';
 
 export interface ChartLegendEntry {
   key: string;
@@ -92,13 +95,13 @@ const styles = StyleSheet.create({
   },
   legendValue: {
     fontSize: 13,
-    textAlign: 'right',
+    textAlign: numericTextAlign,
     minWidth: 20,
   },
   legendPercent: {
     fontSize: 11,
     minWidth: 32,
-    textAlign: 'right',
+    textAlign: numericTextAlign,
   },
 });
 

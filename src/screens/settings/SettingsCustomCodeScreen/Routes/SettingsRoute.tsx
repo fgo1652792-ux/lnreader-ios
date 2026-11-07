@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import ReplaceItemModal from '../Modals/ReplaceItemModal';
 import { List, SwitchItem, IconButtonV2 } from '@components';
 import { useChapterReaderSettings, useTheme } from '@hooks/persisted';
+import { getString } from '@i18n/translations';
 
 type SettingsRouteProps = {
   onEditSnippet?: (index: number, isJS: boolean) => void;
@@ -47,14 +48,18 @@ const SettingsRoute: React.FC<SettingsRouteProps> = ({ onEditSnippet }) => {
   return (
     <ScrollView style={styles.paddingBottom}>
       <List.Section>
-        <List.SubHeader theme={theme}>{'Text manipulation'}</List.SubHeader>
+        <List.SubHeader theme={theme}>
+          {getString('customCodeSettings.textManipulation')}
+        </List.SubHeader>
         <ReplaceItemModal showReplace />
         <ReplaceItemModal />
         <List.Divider theme={theme} />
-        <List.SubHeader theme={theme}>{'Code Snippets'}</List.SubHeader>
+        <List.SubHeader theme={theme}>
+          {getString('customCodeSettings.codeSnippets')}
+        </List.SubHeader>
         <List.Item
-          title={'Create new snippet'}
-          description={'Add CSS or JavaScript code'}
+          title={getString('customCodeSettings.createJSSnippet')}
+          description={getString('customCodeSettings.addJavascriptCode')}
           theme={theme}
           right="plus"
           onPress={() => onEditSnippet?.(-1, true)} // -1 indicates new snippet
@@ -64,7 +69,9 @@ const SettingsRoute: React.FC<SettingsRouteProps> = ({ onEditSnippet }) => {
         {codeSnippetsCSS.length > 0 && (
           <>
             <View style={styles.subSubHeader}>
-              <List.SubHeader theme={theme}>{'CSS Snippets'}</List.SubHeader>
+              <List.SubHeader theme={theme}>
+                {getString('customCodeSettings.cssSnippets')}
+              </List.SubHeader>
             </View>
             {codeSnippetsCSS.map((snippet, index) => (
               <View key={`css-${index}`} style={styles.snippetRow}>
@@ -103,7 +110,7 @@ const SettingsRoute: React.FC<SettingsRouteProps> = ({ onEditSnippet }) => {
           <>
             <View style={styles.subSubHeader}>
               <List.SubHeader theme={theme}>
-                {'JavaScript Snippets'}
+                {getString('customCodeSettings.javascriptSnippets')}
               </List.SubHeader>
             </View>
             {codeSnippetsJS.map((snippet, index) => (
@@ -139,7 +146,10 @@ const SettingsRoute: React.FC<SettingsRouteProps> = ({ onEditSnippet }) => {
         )}
 
         {codeSnippetsCSS.length === 0 && codeSnippetsJS.length === 0 && (
-          <List.Item title={'No code snippets'} theme={theme} />
+          <List.Item
+            title={getString('customCodeSettings.noCodeSnippets')}
+            theme={theme}
+          />
         )}
       </List.Section>
     </ScrollView>
@@ -167,6 +177,6 @@ const styles = StyleSheet.create({
   actionButtons: {
     flexDirection: 'row',
     gap: 8,
-    marginLeft: 8,
+    marginStart: 8,
   },
 });

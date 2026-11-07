@@ -102,7 +102,7 @@ const CodeRoute = ({
       setSettings({
         [language === 'js' ? 'codeSnippetsJS' : 'codeSnippetsCSS']: snippets,
       });
-      showToast('Snippet updated successfully');
+      showToast(getString('customCodeSettings.snippetUpdated'));
       onSnippetSaved?.();
       return;
     }
@@ -117,7 +117,7 @@ const CodeRoute = ({
     setSettings({
       [language === 'js' ? 'codeSnippetsJS' : 'codeSnippetsCSS']: snippets,
     });
-    showToast('Snippet saved successfully');
+    showToast(getString('customCodeSettings.snippetSaved'));
     jumpTo('first'); // Go back to settings tab
   }, [
     language,
@@ -142,7 +142,7 @@ const CodeRoute = ({
     >
       <Row verticalSpacing={8}>
         <Text theme={colors} style={styles.text}>
-          {'Select CSS or JS'}
+          {getString('customCodeSettings.importCode')}
         </Text>
         <ToggleButton
           theme={theme}
@@ -161,6 +161,7 @@ const CodeRoute = ({
       </Row>
 
       <TextInput
+        // TODO: no i18n key exists for a snippet-name label yet
         placeholder={'Snippet name'}
         defaultValue={title}
         onChangeText={setTitle}

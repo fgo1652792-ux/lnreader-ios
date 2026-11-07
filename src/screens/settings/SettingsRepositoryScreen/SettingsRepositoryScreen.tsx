@@ -1,5 +1,10 @@
 import { useCallback, useEffect } from 'react';
-import { FlatList, ListRenderItemInfo, StyleSheet } from 'react-native';
+import {
+  FlatList,
+  I18nManager,
+  ListRenderItemInfo,
+  StyleSheet,
+} from 'react-native';
 import { FAB, Portal } from 'react-native-paper';
 
 import { Appbar, EmptyView, SafeAreaView } from '@components';
@@ -29,7 +34,7 @@ const SettingsBrowseScreen = ({
   navigation,
 }: RespositorySettingsScreenProps) => {
   const theme = useTheme();
-  const { bottom, right } = useSafeAreaInsets();
+  const { bottom, left, right } = useSafeAreaInsets();
   const { refreshPlugins } = usePluginActions();
 
   const repositories = useLiveQuery(dbManager.select().from(repositorySchema), [
@@ -47,12 +52,12 @@ const SettingsBrowseScreen = ({
       if (
         !new RegExp(/https?:\/\/(.*)plugins\.min\.json/).test(repositoryUrl)
       ) {
-        showToast('Repository URL is invalid');
+        showToast(getString('repositories.invalidUrl'));
         return;
       }
 
       if (await isRepoUrlDuplicated(repositoryUrl)) {
-        showToast('A respository with this url already exists!');
+        showToast(getString('repositories.duplicateRepository'));
       } else {
         if (repository) {
           await updateRepository(repository.id, repositoryUrl);
@@ -123,7 +128,14 @@ const SettingsBrowseScreen = ({
         }
       />
       <FAB
-        style={[styles.fab, { backgroundColor: theme.primary, right, bottom }]}
+        style={[
+          styles.fab,
+          {
+            backgroundColor: theme.primary,
+            end: I18nManager.isRTL ? left : right,
+            bottom,
+          },
+        ]}
         color={theme.onPrimary}
         label={getString('common.add')}
         uppercase={false}
@@ -152,6 +164,6 @@ const styles = StyleSheet.create({
   fab: {
     margin: 16,
     position: 'absolute',
-    right: 0,
+    end: 0,
   },
 });

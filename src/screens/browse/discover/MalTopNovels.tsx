@@ -14,6 +14,7 @@ import { ErrorView } from '@components/ErrorView/ErrorView';
 import { SafeAreaView, SearchbarV2 } from '@components';
 
 import { showToast } from '@utils/showToast';
+import { getString } from '@i18n/translations';
 import { scrapeSearchResults, scrapeTopNovels } from './MyAnimeListScraper';
 import DiscoverNovelCard from './DiscoverNovelCard';
 import { useTheme } from '@hooks/persisted';
@@ -120,10 +121,10 @@ const BrowseMalScreen = ({ navigation }: BrowseMalScreenProps) => {
   const ListEmptyComponent = useCallback(
     () => (
       <ErrorView
-        errorName={error || 'No results found'}
+        errorName={error || getString('browseScreen.noResultsFound')}
         actions={[
           {
-            name: 'Retry',
+            name: getString('common.retry'),
             onPress: () => {
               getNovels();
               setLoading(true);
@@ -142,7 +143,7 @@ const BrowseMalScreen = ({ navigation }: BrowseMalScreenProps) => {
     <SafeAreaView>
       <SearchbarV2
         theme={theme}
-        placeholder="Search MyAnimeList"
+        placeholder={getString('browseScreen.searchMyAnimeList')}
         leftIcon="arrow-left"
         handleBackAction={() => navigation.goBack()}
         searchText={searchText}

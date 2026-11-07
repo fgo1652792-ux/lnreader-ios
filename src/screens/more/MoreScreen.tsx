@@ -123,7 +123,7 @@ const MoreScreen = ({ navigation }: MoreStackScreenProps) => {
           </Pressable>
           <List.Divider theme={theme} />
           <List.Item
-            title={'Task Queue'}
+            title={getString('taskQueue.title')}
             description={
               taskQueue && taskQueue.length > 0
                 ? taskQueue.length + ' remaining'

@@ -387,7 +387,7 @@ const styles = StyleSheet.create({
   },
   badgeContainer: {
     flexDirection: 'row',
-    left: 10,
+    start: 10,
     position: 'absolute',
     top: 10,
     zIndex: 1,
@@ -400,9 +400,9 @@ const styles = StyleSheet.create({
   },
   compactTitleContainer: {
     bottom: 4,
-    left: 4,
+    start: 4,
     position: 'absolute',
-    right: 4,
+    end: 4,
   },
   continueReadingButton: {
     alignItems: 'center',
@@ -414,7 +414,7 @@ const styles = StyleSheet.create({
   },
   continueReadingOverlay: {
     position: 'absolute',
-    right: 12,
+    end: 12,
   },
   downloadBadge: {
     borderBottomLeftRadius: 4,

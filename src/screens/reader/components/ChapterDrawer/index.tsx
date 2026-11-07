@@ -298,8 +298,8 @@ const createStylesheet = (theme: ThemeColors, insets: EdgeInsets) => {
       borderBottomWidth: 1,
       flexDirection: 'row',
       minHeight: 64,
-      paddingLeft: 16,
-      paddingRight: 4,
+      paddingStart: 16,
+      paddingEnd: 4,
       paddingVertical: 8,
     },
     headerTitle: {

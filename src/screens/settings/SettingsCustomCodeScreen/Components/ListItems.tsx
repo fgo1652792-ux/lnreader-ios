@@ -3,7 +3,7 @@ import { useTheme } from '@hooks/persisted';
 import { getString } from '@i18n/translations';
 import Icon from '@react-native-vector-icons/material-design-icons';
 import { memo, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { I18nManager, StyleSheet, View } from 'react-native';
 import { Text } from 'react-native-paper';
 
 type RuleCardProps = {
@@ -187,7 +187,8 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   replacementText: {
-    textAlign: 'right',
+    // textAlign is not auto-mirrored; mirror the trailing alignment.
+    textAlign: I18nManager.isRTL ? 'left' : 'right',
   },
   ruleContent: {
     alignItems: 'center',

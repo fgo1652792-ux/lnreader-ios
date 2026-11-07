@@ -1,7 +1,8 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { I18nManager, StatusBar } from 'react-native';
 
 import { Appbar as PaperAppbar } from 'react-native-paper';
+import { getString } from '@i18n/translations';
 import { ThemeColors } from '../../theme/types';
 
 interface AppbarProps {
@@ -25,8 +26,12 @@ const Appbar: React.FC<AppbarProps> = ({
     mode={mode}
   >
     {handleGoBack && (
-      <PaperAppbar.BackAction
+      <PaperAppbar.Action
         onPress={handleGoBack}
+        /* Paper's BackAction hardcodes a physically-left arrow; use an
+           explicit, RTL-aware icon instead. */
+        icon={I18nManager.isRTL ? 'arrow-right' : 'arrow-left'}
+        accessibilityLabel={getString('common.back')}
         iconColor={theme.onSurface}
       />
     )}

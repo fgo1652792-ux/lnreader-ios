@@ -45,7 +45,7 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
       onSubmit(text);
       closeModal();
     } else {
-      setError('Enter a valid hex color code');
+      setError(getString('common.invalidHexColor'));
     }
   };
   const onReset = () => {
@@ -107,7 +107,7 @@ const ColorPickerModal: React.FC<ColorPickerModalProps> = ({
         <TextInput
           value={text}
           defaultValue={typeof color === 'string' ? color : ''}
-          placeholder="Hex Color Code (E.g. #3399FF)"
+          placeholder={getString('common.hexColorPlaceholder')}
           onChangeText={onChangeText}
           onSubmitEditing={onSubmitEditing}
           mode="outlined"

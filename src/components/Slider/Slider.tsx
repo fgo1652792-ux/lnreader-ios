@@ -14,6 +14,7 @@ import {
 import Color from 'color';
 
 import { useTheme } from '@hooks/persisted';
+import { getString } from '@i18n/translations';
 
 const TOUCH_TARGET_HEIGHT = 48;
 const MAX_RENDERED_STOPS = 100;
@@ -242,8 +243,8 @@ const Slider: React.FC<SliderProps> = ({
       accessible
       accessibilityRole="adjustable"
       accessibilityActions={[
-        { name: 'increment', label: 'Increase' },
-        { name: 'decrement', label: 'Decrease' },
+        { name: 'increment', label: getString('common.increase') },
+        { name: 'decrement', label: getString('common.decrease') },
       ]}
       accessibilityState={{ disabled }}
       accessibilityValue={{

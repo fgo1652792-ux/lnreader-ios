@@ -203,14 +203,14 @@ const styles = StyleSheet.create({
   chip: {
     borderRadius: 8,
     height: 30,
-    marginRight: 8,
+    marginEnd: 8,
     width: 80,
   },
   circle: {
     alignSelf: 'center',
     borderRadius: 20,
     height: 30,
-    marginLeft: 20,
+    marginStart: 20,
     width: 30,
   },
   default: {
@@ -237,7 +237,7 @@ const styles = StyleSheet.create({
   img: {
     alignSelf: 'center',
     height: 40,
-    marginRight: 20,
+    marginEnd: 20,
     width: 40,
   },
   metaGap: {

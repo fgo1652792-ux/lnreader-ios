@@ -22,7 +22,9 @@ import {
 } from '@screens/library/constants/constants';
 import { RadioButton } from '@components/RadioButton/RadioButton';
 import { BottomSheetView } from '@gorhom/bottom-sheet';
-import BottomSheet from '@components/BottomSheet/BottomSheet';
+import BottomSheet, {
+  BOTTOM_SHEET_HANDLE_HEIGHT,
+} from '@components/BottomSheet/BottomSheet';
 import { TopTabBar } from '@components';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import { LegendList } from '@legendapp/list/react-native';
@@ -285,7 +287,9 @@ const styles = StyleSheet.create({
     elevation: 0,
   },
   tabView: {
-    height: 520,
+    // Sheet height minus the wrapper's grab handle so the last row is not
+    // clipped at the bottom of the single detent.
+    height: 520 - BOTTOM_SHEET_HANDLE_HEIGHT,
   },
   flex: { flex: 1 },
 });

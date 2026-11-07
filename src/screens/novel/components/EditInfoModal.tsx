@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   statusScrollView: {
-    marginLeft: 8,
+    marginStart: 8,
   },
   statusChipContainer: {
     borderRadius: 8,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     paddingHorizontal: 16,
     marginBottom: 4,
-    marginRight: 8,
+    marginEnd: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -342,6 +342,6 @@ const styles = StyleSheet.create({
     textTransform: 'capitalize',
   },
   genreChipIcon: {
-    marginLeft: 4,
+    marginStart: 4,
   },
 });

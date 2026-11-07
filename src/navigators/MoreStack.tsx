@@ -31,7 +31,8 @@ const SettingsStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        animation: 'none',
+        // iOS push feel; the pop animation is the automatic inverse.
+        animation: 'slide_from_right',
         contentStyle: { backgroundColor: theme.background },
         headerShown: false,
       }}
@@ -61,7 +62,8 @@ const MoreStack = () => {
   return (
     <Stack.Navigator
       screenOptions={{
-        animation: 'none',
+        // iOS push feel; the pop animation is the automatic inverse.
+        animation: 'slide_from_right',
         contentStyle: { backgroundColor: theme.background },
         headerShown: false,
       }}

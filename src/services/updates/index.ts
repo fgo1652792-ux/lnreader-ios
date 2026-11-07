@@ -4,6 +4,7 @@ import {
 } from '../../database/queries/LibraryQueries';
 
 import { showToast } from '../../utils/showToast';
+import { getString } from '@i18n/translations';
 import { updateNovel, type UpdateNovelOptions } from './LibraryUpdateQueries';
 import type { DBNovelInfo } from '@database/types';
 import { sleep } from '@utils/sleep';
@@ -179,7 +180,7 @@ const updateLibrary = async (
         throw rejectedSource.reason;
       }
     } else {
-      showToast("There's no novel to be updated");
+      showToast(getString('updatesScreen.noNovelsToUpdate'));
     }
   } finally {
     setMeta(meta => ({

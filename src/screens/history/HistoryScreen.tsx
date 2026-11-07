@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { StyleSheet, SectionList, Text } from 'react-native';
 
 import {
@@ -15,12 +15,41 @@ import { useAppSettings, useTheme, useHistory } from '@hooks/persisted';
 import { convertDateToISOString } from '@database/utils/convertDateToISOString';
 
 import { History } from '@database/types';
+import { RightIcon } from '@components/SearchbarV2/SearchbarV2';
 import { getString } from '@i18n/translations';
 import ClearHistoryDialog from './components/ClearHistoryDialog';
 import HistorySkeletonLoading from './components/HistorySkeletonLoading';
 import RemoveHistoryDialog from './components/RemoveHistoryDialog';
 import { HistoryScreenProps } from '@navigators/types';
 import { formatDate } from '@utils/dateFormat';
+
+/** Groups read history entries by calendar day, newest first. */
+const groupHistoryByDate = (rawHistory: History[]) => {
+  const dateGroups = rawHistory.reduce<Record<string, History[]>>(
+    (groups, item) => {
+      if (!item.readTime) return groups;
+      const date = convertDateToISOString(item.readTime);
+
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+
+      groups[date].push(item);
+
+      return groups;
+    },
+    {},
+  );
+
+  const groupedHistory = Object.keys(dateGroups).map(date => {
+    return {
+      date,
+      data: dateGroups[date],
+    };
+  });
+
+  return groupedHistory;
+};
 
 const HistoryScreen = ({ navigation }: HistoryScreenProps) => {
   const theme = useTheme();
@@ -38,9 +67,12 @@ const HistoryScreen = ({ navigation }: HistoryScreenProps) => {
   const { searchText, setSearchText, clearSearchbar } = useSearch();
   const [historyToRemove, setHistoryToRemove] = useState<History>();
 
-  const onChangeText = (text: string) => {
-    setSearchText(text);
-  };
+  const onChangeText = useCallback(
+    (text: string) => {
+      setSearchText(text);
+    },
+    [setSearchText],
+  );
 
   const displayedHistory = useMemo(
     () =>
@@ -52,38 +84,26 @@ const HistoryScreen = ({ navigation }: HistoryScreenProps) => {
     [history, searchText],
   );
 
-  const groupHistoryByDate = (rawHistory: History[]) => {
-    const dateGroups = rawHistory.reduce<Record<string, History[]>>(
-      (groups, item) => {
-        if (!item.readTime) return groups;
-        const date = convertDateToISOString(item.readTime);
-
-        if (!groups[date]) {
-          groups[date] = [];
-        }
-
-        groups[date].push(item);
-
-        return groups;
-      },
-      {},
-    );
-
-    const groupedHistory = Object.keys(dateGroups).map(date => {
-      return {
-        date,
-        data: dateGroups[date],
-      };
-    });
-
-    return groupedHistory;
-  };
+  const sections = useMemo(
+    () => groupHistoryByDate(displayedHistory),
+    [displayedHistory],
+  );
 
   const {
     value: clearHistoryDialogVisible,
     setTrue: openClearHistoryDialog,
     setFalse: closeClearHistoryDialog,
   } = useBoolean();
+
+  const rightIcons = useMemo<RightIcon[]>(
+    () => [
+      {
+        iconName: 'delete-sweep-outline',
+        onPress: openClearHistoryDialog,
+      },
+    ],
+    [openClearHistoryDialog],
+  );
 
   const removeHistory = async (resetAllChapters: boolean) => {
     if (!historyToRemove) return;
@@ -125,12 +145,7 @@ const HistoryScreen = ({ navigation }: HistoryScreenProps) => {
         leftIcon="magnify"
         onChangeText={onChangeText}
         clearSearchbar={clearSearchbar}
-        rightIcons={[
-          {
-            iconName: 'delete-sweep-outline',
-            onPress: openClearHistoryDialog,
-          },
-        ]}
+        rightIcons={rightIcons}
         theme={theme}
       />
       {isLoading ? (
@@ -141,7 +156,7 @@ const HistoryScreen = ({ navigation }: HistoryScreenProps) => {
         <>
           <SectionList
             contentContainerStyle={styles.listContainer}
-            sections={groupHistoryByDate(displayedHistory)}
+            sections={sections}
             keyExtractor={(item, index) => 'history' + index}
             renderSectionHeader={({ section: { date } }) => (
               <Text style={[styles.dateHeader, { color: theme.onSurface }]}>

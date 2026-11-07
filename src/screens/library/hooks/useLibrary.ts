@@ -299,22 +299,43 @@ export const useLibrary = (): UseLibraryReturnType => {
     prevRestoreTasksCountRef.current = restoreTasksCount;
   }, [getLibrary, restoreTasksCount]);
 
-  return {
-    library,
-    categories,
-    isLoading,
-    error,
-    setLibrary,
-    setCategories,
-    refreshCategories,
-    novelInLibrary,
-    switchNovelToLibrary,
-    pendingLibraryAddition,
-    cancelPendingLibraryAddition,
-    confirmPendingLibraryAddition,
-    refetchLibrary: getLibrary,
-    setLibrarySearchText: setSearchText,
-  };
+  // Memoised so consumers that build context values from this hook (e.g.
+  // LibraryContextProvider) keep a referentially stable object between
+  // renders that don't change any of the underlying data.
+  return useMemo(
+    () => ({
+      library,
+      categories,
+      isLoading,
+      error,
+      setLibrary,
+      setCategories,
+      refreshCategories,
+      novelInLibrary,
+      switchNovelToLibrary,
+      pendingLibraryAddition,
+      cancelPendingLibraryAddition,
+      confirmPendingLibraryAddition,
+      refetchLibrary: getLibrary,
+      setLibrarySearchText: setSearchText,
+    }),
+    [
+      library,
+      categories,
+      isLoading,
+      error,
+      setLibrary,
+      setCategories,
+      refreshCategories,
+      novelInLibrary,
+      switchNovelToLibrary,
+      pendingLibraryAddition,
+      cancelPendingLibraryAddition,
+      confirmPendingLibraryAddition,
+      getLibrary,
+      setSearchText,
+    ],
+  );
 };
 
 export const useLibraryNovels = () => {

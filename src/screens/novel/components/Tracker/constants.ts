@@ -1,6 +1,7 @@
 import { ImageSourcePropType } from 'react-native';
 
 import { TrackerName, UserListStatus } from '@services/Trackers';
+import { getString } from '@i18n/translations';
 import { ScoreFormat, ScoreFormatting } from './types';
 
 export const TRACKER_ICONS: Record<TrackerName, ImageSourcePropType> = {
@@ -10,37 +11,38 @@ export const TRACKER_ICONS: Record<TrackerName, ImageSourcePropType> = {
   Kitsu: require('../../../../../assets/kitsu.png'),
 };
 
-export const STATUS_LABELS: Record<UserListStatus, string> = {
-  CURRENT: 'Reading',
-  PLANNING: 'Plan to read',
-  COMPLETED: 'Completed',
-  DROPPED: 'Dropped',
-  PAUSED: 'On Hold',
-  REPEATING: 'Rereading',
-};
+export const getStatusLabels = (): Record<UserListStatus, string> => ({
+  CURRENT: getString('trackScreen.statusLabels.reading'),
+  PLANNING: getString('trackScreen.statusLabels.planToRead'),
+  COMPLETED: getString('trackScreen.statusLabels.completed'),
+  DROPPED: getString('trackScreen.statusLabels.dropped'),
+  PAUSED: getString('trackScreen.statusLabels.onHold'),
+  REPEATING: getString('trackScreen.statusLabels.rereading'),
+});
 
-export const MYANIMELIST_SCORES: Record<number, string> = {
-  0: 'No Score',
-  1: 'Apalling',
-  2: 'Horrible',
-  3: 'Very Bad',
-  4: 'Bad',
-  5: 'Average',
-  6: 'Fine',
-  7: 'Good',
-  8: 'Very Good',
-  9: 'Great',
-  10: 'Masterpiece',
-};
+export const getMalScores = (): Record<number, string> => ({
+  0: getString('trackScreen.malScores.noScore'),
+  1: getString('trackScreen.malScores.appalling'),
+  2: getString('trackScreen.malScores.worseThanBad'),
+  3: getString('trackScreen.malScores.bad'),
+  4: getString('trackScreen.malScores.average'),
+  5: getString('trackScreen.malScores.good'),
+  6: getString('trackScreen.malScores.veryGood'),
+  7: getString('trackScreen.malScores.goodPlus'),
+  8: getString('trackScreen.malScores.excellent'),
+  /* MAL's top grade (10) shares the 'Masterpiece' label */
+  9: getString('trackScreen.malScores.masterpiece'),
+  10: getString('trackScreen.malScores.masterpiece'),
+});
 
 export const getTrackerIcon = (trackerName: TrackerName): ImageSourcePropType =>
   TRACKER_ICONS[trackerName];
 
 export const getStatusLabel = (status: string): string | undefined =>
-  STATUS_LABELS[status as UserListStatus];
+  getStatusLabels()[status as UserListStatus];
 
 export const getMyAnimeListScoreLabel = (score: number): string =>
-  `(${score}) ${MYANIMELIST_SCORES[score]}`;
+  `(${score}) ${getMalScores()[score]}`;
 
 export const getAniListScoreFormatting = (
   scoreFormat: ScoreFormat,

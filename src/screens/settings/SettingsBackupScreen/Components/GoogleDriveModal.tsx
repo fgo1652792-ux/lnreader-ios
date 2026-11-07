@@ -362,7 +362,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   footerContainer: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     marginTop: 24,
   },
   loadingContent: {

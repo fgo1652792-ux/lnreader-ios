@@ -1,5 +1,7 @@
+import { getString } from '@i18n/translations';
 import React, { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { Portal } from 'react-native-paper';
 
 import BottomSheet from '@components/BottomSheet/BottomSheet';
@@ -106,13 +108,13 @@ const TrackSheet: React.FC<TrackSheetProps> = ({ bottomSheetRef, novel }) => {
       if (!activeTracker) return;
 
       if (!newChapters) {
-        showToast('Enter a valid number');
+        showToast(getString('trackScreen.enterValidNumber'));
         return;
       }
 
       const newProgress = Number(newChapters);
       if (isNaN(newProgress)) {
-        showToast('Enter a valid number');
+        showToast(getString('trackScreen.enterValidNumber'));
         return;
       }
 
@@ -167,7 +169,9 @@ const TrackSheet: React.FC<TrackSheetProps> = ({ bottomSheetRef, novel }) => {
   return (
     <>
       <BottomSheet bottomSheetRef={bottomSheetRef} snapPoints={snapPoints}>
-        <ScrollView style={styles.contentContainer}>
+        {/* BottomSheetScrollView keeps the scroll gesture inside the list; a
+            plain ScrollView lets pan-down-to-close steal the drag. */}
+        <BottomSheetScrollView style={styles.contentContainer}>
           {authenticatedTrackers.map(tracker => {
             const trackerIcon = getTrackerIcon(tracker.name);
             const trackedNovel = getTrackedNovel(tracker.name);
@@ -196,7 +200,7 @@ const TrackSheet: React.FC<TrackSheetProps> = ({ bottomSheetRef, novel }) => {
               </View>
             );
           })}
-        </ScrollView>
+        </BottomSheetScrollView>
       </BottomSheet>
       <Portal>
         {activeTracker ? (

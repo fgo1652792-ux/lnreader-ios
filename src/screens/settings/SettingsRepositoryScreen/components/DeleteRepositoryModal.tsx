@@ -20,9 +20,11 @@ const DeleteRepositoryModal: React.FC<DeleteRepositoryModalProps> = ({
 }) => {
   return (
     <ConfirmationDialog
-      title="Delete repository"
+      title={getString('repositories.deleteRepository')}
       confirmLabel={getString('common.delete')}
-      message={`Do you wish to delete repository "${repository.url}"?`}
+      message={getString('repositories.deleteRepositoryMessage', {
+        url: repository.url,
+      })}
       visible={visible}
       onDismiss={closeModal}
       onConfirm={async () => {

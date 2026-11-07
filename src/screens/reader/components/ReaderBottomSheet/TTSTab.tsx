@@ -87,7 +87,7 @@ const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
       onDismiss={handleDismiss}
       surfaceStyle={styles.modalContent}
     >
-      <Dialog.Title>Select Voice</Dialog.Title>
+      <Dialog.Title>{getString('readerScreen.tts.selectVoice')}</Dialog.Title>
       <Dialog.Content>
         <View style={styles.languageFilterContainer}>
           <Text style={[styles.filterLabel, { color: theme.onSurfaceVariant }]}>
@@ -199,7 +199,9 @@ const VoicePickerModal: React.FC<VoicePickerModalProps> = ({
         </ScrollView>
       </Dialog.ScrollArea>
       <Dialog.Actions>
-        <Dialog.Action onPress={handleDismiss}>Cancel</Dialog.Action>
+        <Dialog.Action onPress={handleDismiss}>
+          {getString('common.cancel')}
+        </Dialog.Action>
       </Dialog.Actions>
     </Dialog.Root>
   );
@@ -228,7 +230,7 @@ const EnginePickerModal: React.FC<EnginePickerModalProps> = ({
       onDismiss={onDismiss}
       surfaceStyle={styles.modalContent}
     >
-      <Dialog.Title>Select Engine</Dialog.Title>
+      <Dialog.Title>{getString('readerScreen.tts.selectEngine')}</Dialog.Title>
       <Dialog.ScrollArea>
         <ScrollView style={styles.voiceList}>
           <Pressable
@@ -283,7 +285,9 @@ const EnginePickerModal: React.FC<EnginePickerModalProps> = ({
         </ScrollView>
       </Dialog.ScrollArea>
       <Dialog.Actions>
-        <Dialog.Action onPress={onDismiss}>Cancel</Dialog.Action>
+        <Dialog.Action onPress={onDismiss}>
+          {getString('common.cancel')}
+        </Dialog.Action>
       </Dialog.Actions>
     </Dialog.Root>
   );
@@ -341,10 +345,12 @@ const TTSTab: React.FC = () => {
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.section}>
-          <List.SubHeader theme={theme}>Text to Speech</List.SubHeader>
+          <List.SubHeader theme={theme}>
+            {getString('readerScreen.tts.title')}
+          </List.SubHeader>
 
           <ReaderSheetPreferenceItem
-            label="Enable TTS"
+            label={getString('readerScreen.tts.enableTTS')}
             value={TTSEnable}
             onPress={() => setChapterGeneralSettings({ TTSEnable: !TTSEnable })}
             theme={theme}
@@ -354,7 +360,7 @@ const TTSTab: React.FC = () => {
             <>
               {engines.length > 0 ? (
                 <List.Item
-                  title="Engine"
+                  title={getString('readerScreen.tts.engine')}
                   description={tts?.engine?.label || 'System default'}
                   onPress={() => setEngineModalVisible(true)}
                   right="chevron-right"
@@ -363,7 +369,7 @@ const TTSTab: React.FC = () => {
               ) : null}
 
               <List.Item
-                title="Voice"
+                title={getString('readerScreen.tts.voice')}
                 description={tts?.voice?.name || 'System default'}
                 onPress={() => setVoiceModalVisible(true)}
                 right="chevron-right"
@@ -410,7 +416,7 @@ const TTSTab: React.FC = () => {
                 description={getString(
                   'readerScreen.bottomSheet.ttsAutoPageAdvanceDescription',
                 )}
-                label="Auto Page Advance"
+                label={getString('readerScreen.tts.autoPageAdvance')}
                 value={tts?.autoPageAdvance === true}
                 onPress={() =>
                   setChapterReaderSettings({
@@ -427,7 +433,7 @@ const TTSTab: React.FC = () => {
                 description={getString(
                   'readerScreen.bottomSheet.ttsScrollToTopDescription',
                 )}
-                label="Scroll to Top"
+                label={getString('readerScreen.tts.scrollToTop')}
                 value={tts?.scrollToTop !== false}
                 onPress={() =>
                   setChapterReaderSettings({

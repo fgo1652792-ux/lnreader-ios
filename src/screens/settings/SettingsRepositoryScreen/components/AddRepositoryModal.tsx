@@ -33,7 +33,7 @@ const AddRepositoryModal: React.FC<AddRepositoryModalProps> = ({
         <TextInput
           autoFocus
           defaultValue={repositoryUrl}
-          placeholder={'Repo URL'}
+          placeholder={getString('repositories.urlPlaceholder')}
           onChangeText={setRepositoryUrl}
           mode="outlined"
           underlineColor={theme.outline}

@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { I18nManager, StyleSheet } from 'react-native';
 import React, { useEffect } from 'react';
 import { FAB } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
@@ -26,7 +26,7 @@ const CategoriesScreen = () => {
   const theme = useTheme();
   const { goBack } = useNavigation();
 
-  const { bottom, right } = useSafeAreaInsets();
+  const { bottom, left, right } = useSafeAreaInsets();
 
   const {
     value: categoryModalVisible,
@@ -96,7 +96,14 @@ const CategoriesScreen = () => {
         />
       )}
       <FAB
-        style={[styles.fab, { backgroundColor: theme.primary, right, bottom }]}
+        style={[
+          styles.fab,
+          {
+            backgroundColor: theme.primary,
+            end: I18nManager.isRTL ? left : right,
+            bottom,
+          },
+        ]}
         color={theme.onPrimary}
         label={getString('common.add')}
         uppercase={false}
@@ -125,6 +132,6 @@ const styles = StyleSheet.create({
     bottom: 16,
     margin: 16,
     position: 'absolute',
-    right: 0,
+    end: 0,
   },
 });

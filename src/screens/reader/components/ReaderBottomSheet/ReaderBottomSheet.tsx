@@ -14,9 +14,16 @@ import React, {
   Suspense,
 } from 'react';
 import Color from 'color';
+import Animated, {
+  Extrapolation,
+  interpolate,
+  useAnimatedStyle,
+} from 'react-native-reanimated';
 
-import { BottomSheetScrollView, BottomSheetView } from '@gorhom/bottom-sheet';
-import BottomSheet from '@components/BottomSheet/BottomSheet';
+import { BottomSheetScrollView, useBottomSheet } from '@gorhom/bottom-sheet';
+import BottomSheet, {
+  BOTTOM_SHEET_HANDLE_HEIGHT,
+} from '@components/BottomSheet/BottomSheet';
 import { List, TopTabBar } from '@components';
 import { useChapterGeneralSettings, useTheme } from '@hooks/persisted';
 import { SceneMap, TabView } from 'react-native-tab-view';
@@ -215,6 +222,10 @@ interface ReaderBottomSheetV2Props {
   bottomSheetRef: RefObject<BottomSheetModalMethods | null>;
 }
 
+// Snap points for the sheet. The tab view is sized to follow the current
+// snap position so both detents fully contain it.
+const SNAP_POINTS = [360, 600];
+
 const routes = [
   { key: 'readerTab', title: getString('readerSettings.title') },
   { key: 'generalTab', title: getString('generalSettings') },
@@ -223,11 +234,15 @@ const routes = [
 
 const renderLazyPlaceholder = () => <View style={styles.flex} />;
 
-const ReaderBottomSheetV2: React.FC<ReaderBottomSheetV2Props> = ({
-  bottomSheetRef,
-}) => {
+/**
+ * Rendered inside the sheet, so it can read the sheet's animated index and
+ * size the TabView to the visible area at each detent. A fixed height here
+ * meant the collapsed (360) detent clipped the bottom of the content.
+ */
+const ReaderSheetContent: React.FC = () => {
   const theme = useTheme();
   const layout = useWindowDimensions();
+  const { animatedIndex } = useBottomSheet();
 
   const tabHeaderColor = theme.surfaceContainerLow ?? theme.surface;
 
@@ -267,25 +282,45 @@ const ReaderBottomSheetV2: React.FC<ReaderBottomSheetV2Props> = ({
     return <Text style={{ color }}>{route.title}</Text>;
   }, []);
 
+  const contentStyle = useAnimatedStyle(() => ({
+    height: interpolate(
+      animatedIndex.value,
+      [0, 1],
+      [
+        SNAP_POINTS[0] - BOTTOM_SHEET_HANDLE_HEIGHT,
+        SNAP_POINTS[1] - BOTTOM_SHEET_HANDLE_HEIGHT,
+      ],
+      Extrapolation.CLAMP,
+    ),
+  }));
+
   return (
-    <BottomSheet bottomSheetRef={bottomSheetRef} snapPoints={[360, 600]}>
-      <BottomSheetView style={styles.flex}>
-        <TabView
-          commonOptions={{
-            label: renderLabel,
-          }}
-          navigationState={{ index, routes }}
-          renderTabBar={renderTabBar}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={{ width: layout.width }}
-          style={styles.tabView}
-          // Without this every tab is mounted at once – the TTS tab alone
-          // enumerates the device's engines and voices over the bridge.
-          lazy
-          renderLazyPlaceholder={renderLazyPlaceholder}
-        />
-      </BottomSheetView>
+    <Animated.View style={contentStyle}>
+      <TabView
+        commonOptions={{
+          label: renderLabel,
+        }}
+        navigationState={{ index, routes }}
+        renderTabBar={renderTabBar}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        style={styles.flex}
+        // Without this every tab is mounted at once – the TTS tab alone
+        // enumerates the device's engines and voices over the bridge.
+        lazy
+        renderLazyPlaceholder={renderLazyPlaceholder}
+      />
+    </Animated.View>
+  );
+};
+
+const ReaderBottomSheetV2: React.FC<ReaderBottomSheetV2Props> = ({
+  bottomSheetRef,
+}) => {
+  return (
+    <BottomSheet bottomSheetRef={bottomSheetRef} snapPoints={SNAP_POINTS}>
+      <ReaderSheetContent />
     </BottomSheet>
   );
 };
@@ -301,9 +336,6 @@ const styles = StyleSheet.create({
   tabBar: {
     borderBottomWidth: 0.5,
     elevation: 0,
-  },
-  tabView: {
-    height: 600,
   },
   flex: { flex: 1 },
 });

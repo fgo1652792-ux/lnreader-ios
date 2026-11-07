@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 
 import { Appbar as MaterialAppbar } from 'react-native-paper';
@@ -74,6 +74,11 @@ const Downloads = ({ navigation }: DownloadsScreenProps) => {
     return () => clearTimeout(timer);
   }, [getChapters]);
 
+  const groupedChapters = useMemo(
+    () => groupChaptersByNovel(chapters),
+    [chapters],
+  );
+
   return (
     <SafeAreaView excludeTop>
       <Appbar
@@ -99,7 +104,7 @@ const Downloads = ({ navigation }: DownloadsScreenProps) => {
       ) : (
         <FlatList
           contentContainerStyle={styles.flatList}
-          data={groupChaptersByNovel(chapters)}
+          data={groupedChapters}
           keyExtractor={item => `downloadGroup-${item[0]?.novelId}`}
           renderItem={({ item }) => {
             return (

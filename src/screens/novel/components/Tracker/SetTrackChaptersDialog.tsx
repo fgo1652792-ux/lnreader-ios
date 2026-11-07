@@ -27,7 +27,7 @@ const SetTrackChaptersDialogContent: React.FC<
 
   return (
     <Dialog.Root visible onDismiss={onDismiss}>
-      <Dialog.Title>Chapters</Dialog.Title>
+      <Dialog.Title>{getString('trackScreen.chapters')}</Dialog.Title>
       <Dialog.Content>
         <TextInput
           value={chapters}

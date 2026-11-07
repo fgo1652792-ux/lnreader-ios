@@ -6,8 +6,7 @@ import {
 } from '@screens/library/constants/constants';
 import { TtsEngine, TtsVoice } from '@modules/nitro-tts';
 import { useMMKVObject } from 'react-native-mmkv';
-import { useEffect, useMemo } from 'react';
-import type React from 'react';
+import { useEffect, useMemo, type Dispatch, type SetStateAction } from 'react';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
 import type { DateFormat } from '@utils/dateFormat';
 import type {
@@ -364,7 +363,7 @@ export const initialChapterReaderSettings: ChapterReaderSettings = {
  * fields, or different components writing the same domain simultaneously).
  */
 const createSettingsWriter = <T extends object>(key: string) => {
-  type Setter = React.Dispatch<React.SetStateAction<T | undefined>>;
+  type Setter = Dispatch<SetStateAction<T | undefined>>;
   return (setSettings: Setter, values: Partial<T>) => {
     const latest = getMMKVObject<T>(key);
     const base = latest ?? ({} as T);

@@ -8,9 +8,30 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBackHandler } from '@hooks/index';
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import BottomSheetBackdrop from './BottomSheetBackdrop';
-import { StyleSheet, useWindowDimensions } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useTheme } from '@hooks/persisted';
 import { getBottomSheetLayout, normalizeBottomSheetSnapPoints } from './layout';
+
+/**
+ * Height (px) occupied by the themed grab handle rendered by this wrapper:
+ * a 4px bar with an 8px marginBottom. Sheets whose content is sized from
+ * their snap points (e.g. the reader sheet) must subtract this so their
+ * content fits inside the remaining sheet area.
+ */
+export const BOTTOM_SHEET_HANDLE_HEIGHT = 12;
+
+/**
+ * Themed grab handle: without it the sheet's drag affordance is invisible
+ * and hard to discover on iOS. The whole sheet body remains draggable.
+ */
+const SheetHandle: React.FC = () => {
+  const theme = useTheme();
+  return (
+    <View
+      style={[styles.handle, { backgroundColor: theme.outlineVariant }]}
+    />
+  );
+};
 
 interface BottomSheetProps
   extends Omit<
@@ -76,7 +97,7 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
     <BottomSheetModal
       ref={bottomSheetRef}
       backdropComponent={renderBackdrop}
-      handleComponent={null}
+      handleComponent={SheetHandle}
       backgroundStyle={[
         styles.modal,
         {
@@ -106,6 +127,13 @@ const BottomSheet: React.FC<BottomSheetProps> = ({
 export default React.memo(BottomSheet);
 
 const styles = StyleSheet.create({
+  handle: {
+    alignSelf: 'center',
+    borderRadius: 2,
+    height: 4,
+    marginBottom: 8,
+    width: 40,
+  },
   modal: {
     borderTopLeftRadius: 28,
     borderTopRightRadius: 28,

@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     bottom: 16,
     margin: 16,
     position: 'absolute',
-    right: 0,
+    end: 0,
   },
   scrollToTop: {
     bottom: 16,

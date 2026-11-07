@@ -13,7 +13,9 @@ import color from 'color';
 
 import { TabView, TabViewProps } from 'react-native-tab-view';
 import { BottomSheetView, BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import BottomSheet from '@components/BottomSheet/BottomSheet';
+import BottomSheet, {
+  BOTTOM_SHEET_HANDLE_HEIGHT,
+} from '@components/BottomSheet/BottomSheet';
 import { getString } from '@i18n/translations';
 
 import { Checkbox, SortItem } from '@components/Checkbox/Checkbox';
@@ -337,7 +339,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   tabView: {
-    height: 290,
+    // Sheet height minus the wrapper's grab handle so the last row is not
+    // clipped at the bottom of the single detent.
+    height: 290 - BOTTOM_SHEET_HANDLE_HEIGHT,
   },
   flex: {
     flex: 1,
@@ -390,7 +394,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalFooterCtn: {
-    flexDirection: 'row-reverse',
+    flexDirection: 'row',
     paddingTop: 8,
   },
 });

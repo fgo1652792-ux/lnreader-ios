@@ -5,7 +5,7 @@ import { RadioButton, RadioButtonGroup } from '@components/RadioButton';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@i18n/translations';
 import { UserListStatus } from '@services/Trackers';
-import { STATUS_LABELS } from './constants';
+import { getStatusLabels } from './constants';
 import { TrackStatusDialogProps } from './types';
 
 type SetTrackStatusDialogContentProps = Omit<TrackStatusDialogProps, 'visible'>;
@@ -27,13 +27,13 @@ const SetTrackStatusDialogContent: React.FC<
 
   return (
     <Dialog.Root visible onDismiss={onDismiss}>
-      <Dialog.Title>Status</Dialog.Title>
+      <Dialog.Title>{getString('trackScreen.status')}</Dialog.Title>
       <Dialog.List>
         <RadioButtonGroup
           onValueChange={handleValueChange}
           value={selectedStatus}
         >
-          {Object.entries(STATUS_LABELS).map(([key, label]) => (
+          {Object.entries(getStatusLabels()).map(([key, label]) => (
             <RadioButton key={key} value={key} label={label} theme={theme} />
           ))}
         </RadioButtonGroup>

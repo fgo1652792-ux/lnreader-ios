@@ -34,6 +34,9 @@ const ReaderStack = ({ route }) => {
     >
       <Stack.Navigator
         screenOptions={{
+          // The root stack now animates by default; keep the reader's own
+          // pushes (Novel -> Chapter) explicitly on the native transition.
+          animation: 'default',
           contentStyle: { backgroundColor: theme.background },
           headerShown: false,
         }}

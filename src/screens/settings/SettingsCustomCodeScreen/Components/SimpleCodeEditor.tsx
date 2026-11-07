@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import {
   ColorValue,
+  I18nManager,
   StyleProp,
   StyleSheet,
   Text,
@@ -757,7 +758,8 @@ const styles = StyleSheet.create({
     margin: 0,
     padding: 0,
     paddingRight: 4,
-    textAlign: 'right',
+    // textAlign is not auto-mirrored; keep line numbers against the code.
+    textAlign: I18nManager.isRTL ? 'left' : 'right',
   },
   codeLine: {
     flex: 1,

@@ -435,6 +435,11 @@ const NovelScreenList = ({
         onEndReached={getNextChapterBatch}
         onEndReachedThreshold={6}
         onScroll={scrollHandler}
+        // LegendList does not forward this to the native scroller (it always
+        // uses its own internal throttle of 0 = every frame) but it does wrap
+        // onScroll in a 16ms JS throttle, which coalesces the per-frame
+        // shared-value writes done by scrollHandler.
+        scrollEventThrottle={16}
         //drawDistance={1000}
         ListHeaderComponent={listHeader}
       />

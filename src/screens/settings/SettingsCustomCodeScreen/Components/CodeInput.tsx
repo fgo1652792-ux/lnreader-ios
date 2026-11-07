@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { I18nManager, StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@i18n/translations';
 import {
@@ -190,7 +190,8 @@ const styles = StyleSheet.create({
   lines: {
     paddingRight: 4,
     paddingTop: 0,
-    textAlign: 'right',
+    // textAlign is not auto-mirrored; keep line numbers against the code.
+    textAlign: I18nManager.isRTL ? 'left' : 'right',
     minWidth: 32,
   },
   fontStyle: {

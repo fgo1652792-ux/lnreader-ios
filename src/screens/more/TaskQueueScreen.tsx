@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FlatList, View, Text, StyleSheet } from 'react-native';
+import { FlatList, I18nManager, View, Text, StyleSheet } from 'react-native';
 import {
   FAB,
   ProgressBar,
@@ -30,7 +30,7 @@ import { useMMKVObject } from 'react-native-mmkv';
 
 const DownloadQueue = ({ navigation }: TaskQueueScreenProps) => {
   const theme = useTheme();
-  const { bottom, right } = useSafeAreaInsets();
+  const { bottom, left, right } = useSafeAreaInsets();
   const [taskQueue] = useMMKVObject<QueuedBackgroundTask[]>(
     BACKGROUND_TASKS_STORE_KEY,
   );
@@ -49,7 +49,7 @@ const DownloadQueue = ({ navigation }: TaskQueueScreenProps) => {
   return (
     <SafeAreaView excludeTop>
       <Appbar
-        title={'Task Queue'}
+        title={getString('taskQueue.title')}
         handleGoBack={navigation.goBack}
         theme={theme}
       >
@@ -120,7 +120,7 @@ const DownloadQueue = ({ navigation }: TaskQueueScreenProps) => {
         ListEmptyComponent={
           <EmptyView
             icon="(･o･;)"
-            description={'No running tasks'}
+            description={getString('taskQueue.noRunningTasks')}
             theme={theme}
           />
         }
@@ -129,7 +129,11 @@ const DownloadQueue = ({ navigation }: TaskQueueScreenProps) => {
         <FAB
           style={[
             styles.fab,
-            { backgroundColor: theme.primary, bottom, right },
+            {
+              backgroundColor: theme.primary,
+              bottom,
+              end: I18nManager.isRTL ? left : right,
+            },
           ]}
           color={theme.onPrimary}
           label={
@@ -172,7 +176,7 @@ const styles = StyleSheet.create({
     bottom: 16,
     margin: 16,
     position: 'absolute',
-    right: 0,
+    end: 0,
   },
   marginTop: { marginTop: 8 },
   paddingBottom: { paddingBottom: 100, flexGrow: 1 },

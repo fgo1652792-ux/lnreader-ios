@@ -62,7 +62,7 @@ const SetTrackScoreDialogContent: React.FC<SetTrackScoreDialogContentProps> = ({
 
   return (
     <Dialog.Root visible onDismiss={onDismiss}>
-      <Dialog.Title>Score</Dialog.Title>
+      <Dialog.Title>{getString('trackScreen.score')}</Dialog.Title>
       {tracker.name === 'Kitsu' || tracker.name === 'AniList' ? (
         <Dialog.ScrollArea>{ScoreSelector}</Dialog.ScrollArea>
       ) : (

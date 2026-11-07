@@ -1,6 +1,16 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import {
+  I18nManager,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  ViewStyle,
+} from 'react-native';
 import type { ThemeColors } from '@theme/types';
+
+// Keep numeric columns aligned toward the trailing edge in RTL layouts.
+const numericTextAlign = I18nManager.isRTL ? 'left' : 'right';
 
 interface GenreRowProps {
   name: string;
@@ -94,7 +104,7 @@ const styles = StyleSheet.create({
   },
   count: {
     width: 40,
-    textAlign: 'right',
+    textAlign: numericTextAlign,
     fontSize: 14,
   },
 });

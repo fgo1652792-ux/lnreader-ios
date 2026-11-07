@@ -81,7 +81,7 @@ const getStatusIcon = (status?: string) =>
   STATUS_ICON_MAP[status as keyof typeof STATUS_ICON_MAP] ?? 'help';
 
 const showNotAvailable = () => {
-  showToast('Not available while loading');
+  showToast(getString('novelScreen.notAvailableWhileLoading'));
 };
 
 const NovelInfoHeader = ({

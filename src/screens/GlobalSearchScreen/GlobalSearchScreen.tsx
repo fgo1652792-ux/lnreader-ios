@@ -150,7 +150,7 @@ const GlobalSearchScreen = (props: Props) => {
       {progress > 0 ? (
         <View style={styles.filterContainer}>
           <SelectableChip
-            label="Has results"
+            label={getString('globalSearch.hasResults')}
             selected={hasResultsOnly}
             icon="filter-variant"
             showCheckIcon={false}
@@ -198,7 +198,7 @@ export default GlobalSearchScreen;
 const styles = StyleSheet.create({
   openNovelFabContainer: {
     position: 'absolute',
-    right: 0,
+    end: 0,
     bottom: 16,
     margin: 16,
   },

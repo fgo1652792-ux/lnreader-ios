@@ -58,7 +58,7 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           theme={theme}
         />
         <List.Item
-          title="Repositories"
+          title={getString('moreScreen.repositories')}
           icon="github"
           onPress={() =>
             navigation.navigate('SettingsStack', {
@@ -68,7 +68,7 @@ const SettingsScreen = ({ navigation }: SettingsScreenProps) => {
           theme={theme}
         />
         <List.Item
-          title="Custom Code"
+          title={getString('moreScreen.customCode')}
           icon="code-braces"
           onPress={() => navigation.navigate('CustomCode')}
           theme={theme}

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, TextInput } from 'react-native';
 import { Dialog } from '@components';
 import { useTheme } from '@hooks/persisted';
+import { getString } from '@i18n/translations';
 
 interface TrackerLoginDialogProps {
   visible: boolean;
@@ -84,7 +85,7 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
               borderColor: theme.outline,
             },
           ]}
-          placeholder="Password"
+          placeholder={getString('trackScreen.password')}
           placeholderTextColor={theme.onSurfaceVariant}
           value={password}
           onChangeText={setPassword}
@@ -102,12 +103,16 @@ const TrackerLoginDialog: React.FC<TrackerLoginDialogProps> = ({
       </Dialog.Content>
       <Dialog.Actions>
         <Dialog.Action
-          title="Cancel"
+          title={getString('common.cancel')}
           onPress={handleCancel}
           disabled={isLoading}
         />
         <Dialog.Action
-          title={isLoading ? 'Logging in...' : 'Login'}
+          title={
+            isLoading
+              ? getString('trackScreen.loggingIn')
+              : getString('trackScreen.login')
+          }
           onPress={handleSubmit}
           disabled={isLoading}
           loading={isLoading}
