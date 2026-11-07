@@ -208,10 +208,10 @@ jobs:
           xcrun simctl create "$SIM_NAME" "$DEVICE_TYPE" "$RUNTIME"
           echo "SIM_RUNTIME_USED=$RUNTIME" >> "$GITHUB_ENV"
           # Disable hardware-keyboard linking: the HID keyboard connect/disconnect
-# cycle under testd deadlocks UIKeyboardTaskQueue on iOS 18.5 sims
-# (app freezes -> white screen). Software keyboard only.
-defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
-xcrun simctl boot "$SIM_NAME"
+          # cycle under testd deadlocks UIKeyboardTaskQueue on iOS 18.5 sims
+          # (app freezes -> white screen). Software keyboard only.
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
+          xcrun simctl boot "$SIM_NAME"
           xcrun simctl bootstatus "$SIM_NAME" -b
           xcrun simctl list devices | grep -A 5 -i booted || true
 
