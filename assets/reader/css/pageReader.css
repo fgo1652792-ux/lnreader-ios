@@ -39,3 +39,10 @@ body.page-reader.no-animation .transition-chapter {
   z-index: 888888;
   background-color: var(--readerSettings-theme);
 }
+
+/* RTL chapters paginate right-to-left: the chapter transition overlay slides
+   in from the left edge instead of the right. */
+html[dir='rtl'] .transition-chapter {
+  left: unset;
+  right: 100vw;
+}

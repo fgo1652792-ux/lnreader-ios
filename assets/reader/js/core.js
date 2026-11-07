@@ -48,6 +48,8 @@ window.reader = new (function () {
   this.nextChapter = undefined;
   this.prevChapter = undefined;
   this.strings = strings;
+  /** Content direction of the chapter (novel language, not app language). */
+  this.isRTL = document.documentElement.dir === 'rtl';
 
   /** Called by the app once the neighbouring chapters have been resolved. */
   this.setAdjacentChapters = ({ nextChapter, prevChapter, strings: texts }) => {
@@ -124,9 +126,12 @@ window.reader = new (function () {
       var assetsPrefix =
         (typeof window !== 'undefined' && window.LN_READER_ASSETS_PREFIX) ||
         'file:///android_asset';
+      // `display: swap` renders the chapter immediately with a fallback font
+      // and swaps once loaded, instead of blocking first paint on WebKit.
       new FontFace(
         settings.fontFamily,
         'url("' + assetsPrefix + '/fonts/' + settings.fontFamily + '.ttf")',
+        { display: 'swap' },
       )
         .load()
         .then(function (loadedFont) {
@@ -468,12 +473,13 @@ window.tts = new (function () {
       const relativePage = Math.floor(
         (rect.left + rect.width / 2) / reader.layoutWidth,
       );
+      const relativeDelta = reader.isRTL ? -relativePage : relativePage;
       pageReader.movePage(
         Math.max(
           0,
           Math.min(
             pageReader.totalPages.val - 1,
-            pageReader.page.val + relativePage,
+            pageReader.page.val + relativeDelta,
           ),
         ),
       );
@@ -542,6 +548,10 @@ window.pageReader = pageReader = new (function () {
   );
   this.chapterEnding = document.getElementsByClassName('transition-chapter')[0];
 
+  /** Overlay translation multiplier: RTL chapters slide from the other side. */
+  this.dirMul = reader.isRTL ? -1 : 1;
+  const dirMul = this.dirMul;
+
   this.showChapterEnding = (bool, instant, left) => {
     if (!this.chapterEnding) {
       this.chapterEnding =
@@ -553,19 +563,19 @@ window.pageReader = pageReader = new (function () {
     );
     this.chapterEnding.style.transition = 'unset';
     if (bool) {
-      this.chapterEnding.style.transform = `translateX(${left ? -200 : 0}vw)`;
+      this.chapterEnding.style.transform = `translateX(${dirMul * (left ? -200 : 0)}vw)`;
       requestAnimationFrame(() => {
         if (!instant && !noAnim) {
           this.chapterEnding.style.transition = 'transform 200ms';
         }
-        this.chapterEnding.style.transform = 'translateX(-100vw)';
+        this.chapterEnding.style.transform = `translateX(${dirMul * -100}vw)`;
       });
       this.chapterEndingVisible.val = true;
     } else {
       if (!instant && !noAnim) {
         this.chapterEnding.style.transition = 'transform 200ms';
       }
-      this.chapterEnding.style.transform = `translateX(${left ? -200 : 0}vw)`;
+      this.chapterEnding.style.transform = `translateX(${dirMul * (left ? -200 : 0)}vw)`;
       this.chapterEndingVisible.val = false;
     }
   };
@@ -619,7 +629,7 @@ window.pageReader = pageReader = new (function () {
     }
     this.page.val = destPage;
     reader.chapterElement.style.transform =
-      'translateX(-' + destPage * 100 + '%)';
+      `translateX(${dirMul * -destPage * 100}%)`;
 
     const newProgress = parseInt(
       ((this.page.val + 1) / this.totalPages.val) * 100,
@@ -843,8 +853,15 @@ window.addEventListener('load', () => {
   }
 });
 
-// click handler
+// tap handler
 (function () {
+  /** Elements a tap must never be treated as a reader tap on. */
+  const INTERACTIVE_SELECTOR =
+    'a, button, input, textarea, select, [contenteditable], [role=button]';
+  /** In-page reader chrome that handles its own touches. */
+  const UI_ZONE_SELECTOR =
+    '#TTS-Controller, #ScrollBar, #text-selection-ui, #Image-Modal, .transition-chapter';
+
   const detectTapPosition = (x, y, horizontal) => {
     if (horizontal) {
       if (x < 0.33) {
@@ -863,11 +880,15 @@ window.addEventListener('load', () => {
     }
     return 'center';
   };
-  document.onclick = e => {
+
+  reader.handleTap = (clientX, clientY) => {
     if (Date.now() < pageReader.ignoreClickUntil) {
       return;
     }
-    const { clientX, clientY } = e;
+    // A text selection gesture must not toggle the chrome.
+    if (window.getSelection()?.toString().trim().length > 0) {
+      return;
+    }
     const { x, y } = {
       x: clientX / reader.layoutWidth,
       y: clientY / reader.layoutHeight,
@@ -875,11 +896,13 @@ window.addEventListener('load', () => {
 
     if (reader.generalSettings.val.pageReader) {
       const position = detectTapPosition(x, y, true);
-      if (position === 'left') {
+      const backSide = reader.isRTL ? 'right' : 'left';
+      const nextSide = reader.isRTL ? 'left' : 'right';
+      if (position === backSide) {
         pageReader.movePage(pageReader.page.val - 1);
         return;
       }
-      if (position === 'right') {
+      if (position === nextSide) {
         pageReader.movePage(pageReader.page.val + 1);
         return;
       }
@@ -904,6 +927,76 @@ window.addEventListener('load', () => {
     }
     reader.post({ type: 'hide' });
   };
+
+  document.onclick = e => {
+    if (
+      e.target.closest &&
+      e.target.closest(`${INTERACTIVE_SELECTOR}, ${UI_ZONE_SELECTOR}`)
+    ) {
+      return;
+    }
+    // The touch handler below already handled this gesture; WebKit delivers
+    // its synthesized click right after touchend.
+    if (Date.now() - (window.__lnTapHandledAt || 0) < 700) {
+      return;
+    }
+    reader.handleTap(e.clientX, e.clientY);
+  };
+
+  /**
+   * Touch-synthesized tap detection. On iOS WKWebView the synthesized `click`
+   * is not reliably delivered (it can be swallowed after momentum scrolling,
+   * by selection gestures, or by invisible fixed overlays), which made the
+   * tap-to-toggle-toolbar gesture dead on device. Deriving taps from
+   * touchstart/touchend is deterministic on every WebKit build.
+   */
+  let tapTracking = null;
+  document.addEventListener(
+    'touchstart',
+    e => {
+      if (e.touches.length !== 1) {
+        tapTracking = null;
+        return;
+      }
+      const touch = e.changedTouches[0];
+      tapTracking = {
+        x: touch.clientX,
+        y: touch.clientY,
+        time: Date.now(),
+        target: e.target,
+      };
+    },
+    { passive: true },
+  );
+  document.addEventListener(
+    'touchend',
+    e => {
+      const start = tapTracking;
+      tapTracking = null;
+      if (!start) {
+        return;
+      }
+      const touch = e.changedTouches[0];
+      if (!touch) {
+        return;
+      }
+      const elapsed = Date.now() - start.time;
+      const dx = touch.clientX - start.x;
+      const dy = touch.clientY - start.y;
+      if (elapsed > 500 || Math.abs(dx) > 12 || Math.abs(dy) > 12) {
+        return;
+      }
+      if (
+        start.target?.closest &&
+        start.target.closest(`${INTERACTIVE_SELECTOR}, ${UI_ZONE_SELECTOR}`)
+      ) {
+        return;
+      }
+      window.__lnTapHandledAt = Date.now();
+      reader.handleTap(touch.clientX, touch.clientY);
+    },
+    { passive: true },
+  );
 })();
 
 // swipe handler
@@ -922,7 +1015,7 @@ window.addEventListener('load', () => {
         (e.changedTouches[0].screenX - this.initialX) / reader.layoutWidth;
       reader.chapterElement.style.transition = 'unset';
       reader.chapterElement.style.transform =
-        'translateX(-' + (pageReader.page.val - diffX) * 100 + '%)';
+        `translateX(${dirMul * -(pageReader.page.val - diffX) * 100}%)`;
     }
   });
 
@@ -933,15 +1026,14 @@ window.addEventListener('load', () => {
       if (Math.abs(diffX) > 8 || Math.abs(diffY) > 8) {
         pageReader.ignoreClickUntil = Date.now() + 400;
       }
-      reader.chapterElement.style.transition = reader.generalSettings.val
-        .pageReaderDisableAnimation
-        ? 'none'
-        : 'transform 200ms';
+      // Restore the CSS-controlled transition (the inline one was unset while
+      // dragging). The `no-animation` body class disables it when requested.
       reader.chapterElement.style.removeProperty('transition');
       const diffXPercentage = diffX / reader.layoutWidth;
-      if (diffXPercentage < -0.3) {
+      const nextDelta = reader.isRTL ? -1 : 1;
+      if (diffXPercentage * nextDelta < -0.3) {
         pageReader.movePage(pageReader.page.val + 1);
-      } else if (diffXPercentage > 0.3) {
+      } else if (diffXPercentage * nextDelta > 0.3) {
         pageReader.movePage(pageReader.page.val - 1);
       } else {
         pageReader.movePage(pageReader.page.val);

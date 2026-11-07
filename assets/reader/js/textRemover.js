@@ -187,10 +187,24 @@ window.textRemover = new (function () {
     }
   });
 
-  // Hide UI on scroll
-  window.addEventListener('scroll', function () {
-    hideSelectionUI();
-  });
+  // Hide UI on scroll (rAF-coalesced: one style write per frame at most, and
+  // nothing at all while it is already hidden).
+  (() => {
+    let scrollFrame = 0;
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (!isUIActive || scrollFrame) {
+          return;
+        }
+        scrollFrame = requestAnimationFrame(() => {
+          scrollFrame = 0;
+          hideSelectionUI();
+        });
+      },
+      { passive: true },
+    );
+  })();
 })();
 
 /**

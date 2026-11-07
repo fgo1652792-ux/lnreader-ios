@@ -4,6 +4,11 @@ html {
   word-wrap: break-word;
 }
 
+:root {
+  /* iOS home-indicator inset used by the selection action bar. */
+  --bottom-inset: env(safe-area-inset-bottom, 0px);
+}
+
 ::selection {
   color: var(--theme-onSecondary);
   background-color: var(--theme-secondary);

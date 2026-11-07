@@ -265,7 +265,10 @@
     "settings": {
       "title": "Plugin Settings",
       "description": "Fill in the plugin settings. Restart app to apply the settings."
-    }
+    },
+    "noResultsFound": "No results found",
+    "searchMyAnimeList": "Search MyAnimeList",
+    "searchAniList": "Search AniList"
   },
   "browseSettings": "Browse Settings",
   "browseSettingsScreen": {
@@ -296,7 +299,12 @@
     "disableTitle": "Disable repository?",
     "disableWarning": "LNReader will stop checking %{name}. Its plugins will be hidden unless another enabled repository provides them. Installed plugins will remain installed.",
     "emptyMsg": "You have no repositories. Add your first plugin repository to get started.",
-    "toggle": "Toggle %{name} repository"
+    "toggle": "Toggle %{name} repository",
+    "deleteRepository": "Delete repository",
+    "deleteRepositoryMessage": "Are you sure you want to delete the repository %{url}? Its plugins will be removed.",
+    "invalidUrl": "Repository URL is invalid",
+    "duplicateRepository": "A repository with this URL already exists!",
+    "urlPlaceholder": "Repo URL"
   },
   "common": {
     "about": "About",
@@ -354,7 +362,11 @@
     "custom_code": "Custom Code",
     "textToReplace": "Text to replace",
     "replaceWith": "Replace with",
-    "replaceText": "Replace text"
+    "replaceText": "Replace text",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "invalidHexColor": "Enter a valid hex color code",
+    "hexColorPlaceholder": "Hex color code (e.g. #3399FF)"
   },
   "webview": {
     "refresh": "Refresh",
@@ -392,7 +404,9 @@
     "cancelTaskAction": "Cancel task",
     "cancelTaskTitle": "Cancel task?",
     "cancelTaskConfirmation": "Are you sure you want to cancel %{task}?",
-    "keepTaskAction": "Keep task"
+    "keepTaskAction": "Keep task",
+    "title": "Task Queue",
+    "noRunningTasks": "No running tasks"
   },
   "errorBoundary": {
     "title": "An Unexpected Error Occurred",
@@ -469,7 +483,8 @@
     "searchIn": "Search a novel in",
     "openNovel": "Open novel",
     "openCopiedNovel": "Open copied novel",
-    "noSourceForUrl": "No source found for this URL"
+    "noSourceForUrl": "No source found for this URL",
+    "hasResults": "Has results"
   },
   "history": "History",
   "historyScreen": {
@@ -532,7 +547,9 @@
     "downloadOnlyDesc": "Filters all novels in your library",
     "downloadQueue": "Download queue",
     "incognitoMode": "Incognito mode",
-    "incognitoModeDesc": "Pauses reading history"
+    "incognitoModeDesc": "Pauses reading history",
+    "repositories": "Repositories",
+    "customCode": "Custom Code"
   },
   "novelScreen": {
     "addToLibaray": "Add to library",
@@ -643,7 +660,8 @@
     "tracked": "Tracked",
     "tracking": "Tracking",
     "unknownStatus": "Unknown status",
-    "updatedToast": "Updated %{name}"
+    "updatedToast": "Updated %{name}",
+    "notAvailableWhileLoading": "Not available while loading"
   },
   "readerScreen": {
     "bottomSheet": {
@@ -691,7 +709,10 @@
       "verticalSeekbarDescription": "Show a slider on the side to jump to any point in the chapter",
       "keepScreenOn": "Keep screen on",
       "volumeButtonsScroll": "Volume button scrolling",
-      "volumeButtonsScrollDescription": "Use the volume buttons to scroll instead of adjusting volume"
+      "volumeButtonsScrollDescription": "Use the volume buttons to scroll instead of adjusting volume",
+      "theme": "Theme",
+      "accessibility": "Accessibility",
+      "readingEnhancements": "Reading Enhancements"
     },
     "drawer": {
       "scrollToBottom": "Scroll to bottom",
@@ -704,7 +725,17 @@
     "noNextChapter": "There's no next chapter",
     "noPreviousChapter": "There's no previous chapter",
     "searchMinLength": "Enter at least %{count} characters to search",
-    "searchPlaceholder": "Search chapter"
+    "searchPlaceholder": "Search chapter",
+    "tts": {
+      "title": "Text to Speech",
+      "enableTTS": "Enable TTS",
+      "engine": "Engine",
+      "voice": "Voice",
+      "selectEngine": "Select Engine",
+      "selectVoice": "Select Voice",
+      "autoPageAdvance": "Auto Page Advance",
+      "scrollToTop": "Scroll to Top"
+    }
   },
   "readerSettings": {
     "autoScrollInterval": "Scroll interval (seconds)",
@@ -730,7 +761,12 @@
     "textColorModal": "Text color",
     "title": "Reader",
     "verticalSeekbarDesc": "Use vertical seekbar",
-    "volumeButtonOffset": "Volume button scroll offset (screen heights)"
+    "volumeButtonOffset": "Volume button scroll offset (screen heights)",
+    "customColors": "Custom Colors",
+    "tabDisplay": "Display",
+    "tabTheme": "Theme",
+    "tabNavigation": "Navigation",
+    "tabAccessibility": "Accessibility"
   },
   "sourceScreen": {
     "noResultsFound": "No results found"
@@ -777,7 +813,8 @@
     "searchbar": "Search updates",
     "unableToGetNovel": "Unable to get novel",
     "updatesLower": "updates",
-    "updatingLibrary": "Updating library"
+    "updatingLibrary": "Updating library",
+    "noNovelsToUpdate": "There's no novel to be updated"
   },
   "onboardingScreen": {
     "welcome": "Welcome",
@@ -907,5 +944,45 @@
     "normalizationValuePlaceholder": "e.g. Sci-Fi",
     "noCategories": "No genre groups yet",
     "noNormalization": "No normalization rules configured"
+  },
+  "trackScreen": {
+    "status": "Status",
+    "score": "Score",
+    "chapters": "Chapters",
+    "password": "Password",
+    "login": "Login",
+    "loggingIn": "Logging in...",
+    "ok": "OK",
+    "enterValidNumber": "Enter a valid number",
+    "statusLabels": {
+      "reading": "Reading",
+      "planToRead": "Plan to read",
+      "completed": "Completed",
+      "dropped": "Dropped",
+      "onHold": "On Hold",
+      "rereading": "Rereading"
+    },
+    "malScores": {
+      "noScore": "No Score",
+      "appalling": "Appalling",
+      "worseThanBad": "Worse than bad",
+      "bad": "Bad",
+      "average": "Average",
+      "good": "Good",
+      "veryGood": "Very good",
+      "goodPlus": "Good +",
+      "excellent": "Excellent",
+      "masterpiece": "Masterpiece"
+    }
+  },
+  "colorPicker": {
+    "hue": "Hue",
+    "saturation": "Saturation",
+    "lightness": "Lightness",
+    "preview": "Preview",
+    "contrast": "Contrast",
+    "contrastLowWarning": "Low contrast — text may be hard to read",
+    "contrastGood": "Readable contrast",
+    "readerPresets": "Reading presets"
   }
 }

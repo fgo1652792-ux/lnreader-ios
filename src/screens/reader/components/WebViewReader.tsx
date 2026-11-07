@@ -47,6 +47,22 @@ export type WebViewPostEvent = {
   total?: number;
 };
 
+/**
+ * Parses a WebView message defensively. Plugin `custom.js` snippets (or a
+ * partially-written message) can post non-JSON strings; throwing here would
+ * break every later message, including progress saves and toolbar toggles.
+ */
+const parseWebViewEvent = (raw: string): WebViewPostEvent | null => {
+  try {
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' && parsed.type
+      ? (parsed as WebViewPostEvent)
+      : null;
+  } catch {
+    return null;
+  }
+};
+
 type WebViewReaderProps = {
   onPress(): void;
   onTouchStart?(): void;
@@ -198,6 +214,72 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       initialChapterReaderSettings,
   );
 
+  /**
+   * Ready-handshake: the page posts `{type:'ready'}` once all reader globals
+   * exist. Updates pushed before that are dropped by the WebView (the global
+   * is not there yet), so they are buffered and replayed on ready.
+   */
+  const webViewReadyRef = useRef(false);
+  const generalSettingsRef = useRef<ChapterGeneralSettings>(
+    chapterGeneralSettings,
+  );
+  // Chapter changes rebuild the page snapshot; keep the replay source current.
+  useEffect(() => {
+    generalSettingsRef.current = chapterGeneralSettings;
+  }, [chapterGeneralSettings]);
+  const adjacentScriptReadyRef = useRef<string | null>(null);
+
+  const pushReaderSettingsToWebView = useCallback(
+    (settings: ChapterReaderSettings) => {
+      if (!webViewReadyRef.current) {
+        return;
+      }
+      webViewRef.current?.injectJavaScript(
+        `window.reader?.readerSettings && (reader.readerSettings.val = ${JSON.stringify(
+          settings,
+        )}); true;`,
+      );
+    },
+    [webViewRef],
+  );
+
+  const pushGeneralSettingsToWebView = useCallback(
+    (settings: ChapterGeneralSettings) => {
+      generalSettingsRef.current = settings;
+      if (!webViewReadyRef.current) {
+        return;
+      }
+      webViewRef.current?.injectJavaScript(
+        `window.reader?.generalSettings && (reader.generalSettings.val = ${JSON.stringify(
+          settings,
+        )}); true;`,
+      );
+    },
+    [webViewRef],
+  );
+
+  const pushBatteryToWebView = useCallback(
+    (level: number) => {
+      if (!webViewReadyRef.current) {
+        return;
+      }
+      webViewRef.current?.injectJavaScript(
+        `if (window.reader?.batteryLevel) { reader.batteryLevel.val = ${level}; } true;`,
+      );
+    },
+    [webViewRef],
+  );
+
+  const pushAdjacentChaptersToWebView = useCallback(
+    (script: string) => {
+      if (!webViewReadyRef.current) {
+        return;
+      }
+      webViewRef.current?.injectJavaScript(script);
+    },
+    [webViewRef],
+  );
+
   const readerSettingsRef = useRef<ChapterReaderSettings>(readerSettings);
 
   useEffect(() => {
@@ -236,8 +318,14 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
     // Kept for onLoadEnd: an update that lands before the document is ready is
     // dropped by the WebView, so it is replayed once the page has loaded.
     adjacentChapterScriptRef.current = script;
-    webViewRef.current?.injectJavaScript(script);
-  }, [nextChapter, prevChapter, webViewRef]);
+    adjacentScriptReadyRef.current = script;
+    pushAdjacentChaptersToWebView(script);
+  }, [
+    nextChapter,
+    prevChapter,
+    pushAdjacentChaptersToWebView,
+    webViewRef,
+  ]);
 
   useEffect(() => {
     const mmkvListener = MMKVStorage.addOnValueChangedListener(key => {
@@ -256,23 +344,15 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
           ) {
             updateTtsSettings(toNativeTtsSettings(newReaderSettings.tts));
           }
-          // Update WebView settings
-          webViewRef.current?.injectJavaScript(
-            `
-            reader.readerSettings.val = ${JSON.stringify(newReaderSettings)}
-            `,
-          );
+          // Update WebView settings (buffered until the page is ready)
+          pushReaderSettingsToWebView(newReaderSettings);
           break;
         }
         case CHAPTER_GENERAL_SETTINGS: {
           const newGeneralSettings =
             getMMKVObject<ChapterGeneralSettings>(CHAPTER_GENERAL_SETTINGS) ||
             initialChapterGeneralSettings;
-          webViewRef.current?.injectJavaScript(
-            `reader.generalSettings.val = ${JSON.stringify(
-              newGeneralSettings,
-            )}`,
-          );
+          pushGeneralSettingsToWebView(newGeneralSettings);
           break;
         }
       }
@@ -282,28 +362,35 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       'RNDeviceInfo_batteryLevelDidChange',
       (level: number) => {
         lastKnownBatteryLevel = level;
-        webViewRef.current?.injectJavaScript(
-          `reader.batteryLevel.val = ${level}`,
-        );
+        pushBatteryToWebView(level);
       },
     );
 
     getBatteryLevel().then(level => {
       lastKnownBatteryLevel = level;
-      webViewRef.current?.injectJavaScript(
-        `if (window.reader?.batteryLevel) {
-          window.reader.batteryLevel.val = ${level};
-        }`,
-      );
+      pushBatteryToWebView(level);
     });
 
     return () => {
       subscription.remove();
       mmkvListener.remove();
     };
-  }, [updateTtsSettings, webViewRef]);
+  }, [
+    pushBatteryToWebView,
+    pushGeneralSettingsToWebView,
+    pushReaderSettingsToWebView,
+    updateTtsSettings,
+    webViewRef,
+  ]);
   const isRTL = plugin?.lang === 'Arabic' || plugin?.lang === 'Hebrew';
   const readerDir = isRTL ? 'rtl' : 'ltr';
+  // RTL chapters inherit the reader's alignment: the stored default `left`
+  // is mirrored to `right` so Arabic/Hebrew novels read naturally. An explicit
+  // alignment choice other than the default is respected as-is.
+  const resolvedTextAlign =
+    isRTL && initialReaderSettings.textAlign === 'left'
+      ? 'right'
+      : initialReaderSettings.textAlign;
 
   /**
    * Serialising the whole chapter is expensive, so the document is built once
@@ -321,9 +408,12 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       body: plugin?.imageRequestInit?.body,
       html: `
         <!DOCTYPE html>
-          <html dir="${readerDir}">
+          <html dir="${readerDir}" lang="${
+            plugin?.lang?.toLowerCase() || 'en'
+          }">
             <head>
               <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+              <meta name="color-scheme" content="light dark">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/index.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/pageReader.css">
               <link rel="stylesheet" href="${assetsUriPrefix}/css/toolWrapper.css">
@@ -335,7 +425,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
                 --readerSettings-padding: ${initialReaderSettings.padding}px;
                 --readerSettings-textSize: ${initialReaderSettings.textSize}px;
                 --readerSettings-textColor: ${initialReaderSettings.textColor};
-                --readerSettings-textAlign: ${initialReaderSettings.textAlign};
+                --readerSettings-textAlign: ${resolvedTextAlign};
                 --readerSettings-lineHeight: ${
                   initialReaderSettings.lineHeight
                 };
@@ -366,6 +456,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
                   src: url("${assetsUriPrefix}/fonts/${
                     initialReaderSettings.fontFamily
                   }.ttf");
+                  font-display: swap;
                 }
                                 </style>
               <link rel="stylesheet" href="${pluginCustomCSS}">
@@ -378,7 +469,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
       }">
               <div class="transition-chapter" style="transform: ${
                 isNextChapterScreenVisible
-                  ? 'translateX(-100%)'
+                  ? `translateX(${isRTL ? '' : '-'}100%)`
                   : 'translateX(0%)'
               };
               ${chapterGeneralSettings.pageReader ? '' : 'display: none'}"
@@ -476,13 +567,23 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
           return true;
         }}
         onLoadEnd={() => {
+          // The baked page-turn overlay has served its purpose once this page
+          // rendered; reset it so later loads (drawer navigation, refetch) do
+          // not start covered by the transition screen.
+          nextChapterScreenVisible.current = false;
+
+          // Replay everything that may have been pushed while the document was
+          // still loading (the WebView drops injections for missing globals).
+          webViewReadyRef.current = true;
           webViewRef.current?.injectJavaScript(
             `if (window.reader && window.reader.batteryLevel) {
             window.reader.batteryLevel.val = ${lastKnownBatteryLevel};
-          }`,
+          } true;`,
           );
-          webViewRef.current?.injectJavaScript(
-            adjacentChapterScriptRef.current,
+          pushReaderSettingsToWebView(readerSettingsRef.current);
+          pushGeneralSettingsToWebView(generalSettingsRef.current);
+          pushAdjacentChaptersToWebView(
+            adjacentScriptReadyRef.current || adjacentChapterScriptRef.current,
           );
 
           const searchText = searchTextRef.current.trim();
@@ -511,8 +612,23 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         }}
         onMessage={(ev: { nativeEvent: { data: string } }) => {
           __DEV__ && onLogMessage(ev);
-          const event: WebViewPostEvent = JSON.parse(ev.nativeEvent.data);
+          const event = parseWebViewEvent(ev.nativeEvent.data);
+          if (!event) {
+            return;
+          }
           switch (event.type) {
+            case 'ready':
+              // The page is fully initialised: replay current state in case
+              // the onLoadEnd replay raced ahead of the reader globals.
+              webViewReadyRef.current = true;
+              pushReaderSettingsToWebView(readerSettingsRef.current);
+              pushGeneralSettingsToWebView(generalSettingsRef.current);
+              pushBatteryToWebView(lastKnownBatteryLevel);
+              pushAdjacentChaptersToWebView(
+                adjacentScriptReadyRef.current ||
+                  adjacentChapterScriptRef.current,
+              );
+              break;
             case 'tts-queue': {
               const payload = event.data as
                 | { queue?: unknown; startIndex?: unknown }
@@ -629,11 +745,11 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
         onDismiss={() => setReplaceModalVisible(false)}
       >
         <Dialog.Header>
-          <Dialog.Title>Replace Text</Dialog.Title>
+          <Dialog.Title>{getString('common.replaceText')}</Dialog.Title>
         </Dialog.Header>
         <Dialog.Content>
           <TextInput
-            label="Text to replace"
+            label={getString('common.textToReplace')}
             value={selectedTextForReplace}
             editable={false}
             mode="outlined"
@@ -641,7 +757,7 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
             theme={{ colors: { background: theme.surface } }}
           />
           <TextInput
-            label="Replace with"
+            label={getString('common.replaceWith')}
             value={replacementText}
             onChangeText={setReplacementText}
             autoCorrect={false}
@@ -651,8 +767,12 @@ const WebViewReader: React.FC<WebViewReaderProps> = ({
           />
         </Dialog.Content>
         <Dialog.Actions>
-          <Dialog.Action onPress={handleReplaceCancel}>Cancel</Dialog.Action>
-          <Dialog.Action onPress={handleReplaceSave}>Save</Dialog.Action>
+          <Dialog.Action onPress={handleReplaceCancel}>
+            {getString('common.cancel')}
+          </Dialog.Action>
+          <Dialog.Action onPress={handleReplaceSave}>
+            {getString('common.save')}
+          </Dialog.Action>
         </Dialog.Actions>
       </Dialog.Root>
     </>

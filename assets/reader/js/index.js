@@ -579,3 +579,10 @@ const ReaderUI = () => {
 };
 
 van.add(document.getElementById('reader-ui'), ReaderUI());
+
+/**
+ * Ready handshake: all reader globals (`window.reader`, `window.pageReader`,
+ * `window.tts`) are initialised and the in-page UI is mounted. The app replays
+ * any state pushed while the page was still loading once this arrives.
+ */
+reader.post({ type: 'ready' });

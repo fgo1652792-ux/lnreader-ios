@@ -265,7 +265,10 @@
     "settings": {
       "title": "إعدادات الإضافة",
       "description": "املأ إعدادات الإضافة. أعد تشغيل التطبيق لتطبيق الإعدادات."
-    }
+    },
+    "noResultsFound": "لا توجد نتائج",
+    "searchMyAnimeList": "ابحث في MyAnimeList",
+    "searchAniList": "ابحث في AniList"
   },
   "browseSettings": "إعدادات التصفح",
   "browseSettingsScreen": {
@@ -296,7 +299,12 @@
     "disableTitle": "Disable repository?",
     "disableWarning": "LNReader will stop checking %{name}. Its plugins will be hidden unless another enabled repository provides them. Installed plugins will remain installed.",
     "emptyMsg": "ليس لديك مستودعات. أضف مستودع الإضافات الأول لتبدأ.",
-    "toggle": "Toggle %{name} repository"
+    "toggle": "Toggle %{name} repository",
+    "deleteRepository": "حذف المستودع",
+    "deleteRepositoryMessage": "هل تريد حقًا حذف المستودع %{url}؟ ستُزال إضافاته.",
+    "invalidUrl": "رابط المستودع غير صالح",
+    "duplicateRepository": "يوجد مستودع بهذا الرابط بالفعل!",
+    "urlPlaceholder": "رابط المستودع"
   },
   "common": {
     "about": "حول",
@@ -354,7 +362,11 @@
     "custom_code": "Custom Code",
     "textToReplace": "Text to replace",
     "replaceWith": "Replace with",
-    "replaceText": "Replace text"
+    "replaceText": "Replace text",
+    "increase": "زيادة",
+    "decrease": "تقليل",
+    "invalidHexColor": "أدخل رمز لون سداسي عشري صالحًا",
+    "hexColorPlaceholder": "رمز اللون (مثال: #3399FF)"
   },
   "webview": {
     "refresh": "تحديث",
@@ -392,7 +404,9 @@
     "cancelTaskAction": "Cancel task",
     "cancelTaskTitle": "Cancel task?",
     "cancelTaskConfirmation": "Are you sure you want to cancel %{task}?",
-    "keepTaskAction": "Keep task"
+    "keepTaskAction": "Keep task",
+    "title": "قائمة المهام",
+    "noRunningTasks": "لا توجد مهام قيد التشغيل"
   },
   "errorBoundary": {
     "title": "An Unexpected Error Occurred",
@@ -467,7 +481,8 @@
     "searchIn": "البحث عن رواية في",
     "openNovel": "Open novel",
     "openCopiedNovel": "Open copied novel",
-    "noSourceForUrl": "No source found for this URL"
+    "noSourceForUrl": "No source found for this URL",
+    "hasResults": "لها نتائج"
   },
   "history": "السجل",
   "historyScreen": {
@@ -528,7 +543,9 @@
     "downloadOnlyDesc": "يصفي جميع الروايات في مكتبتك",
     "downloadQueue": "قائمة التنزيلات",
     "incognitoMode": "وضع التصفح الخفي",
-    "incognitoModeDesc": "يوقف سجل القراءة مؤقتاً"
+    "incognitoModeDesc": "يوقف سجل القراءة مؤقتاً",
+    "repositories": "المستودعات",
+    "customCode": "الأكواد المخصصة"
   },
   "novelScreen": {
     "addToLibaray": "إضافة إلى المكتبة",
@@ -639,7 +656,8 @@
     "tracked": "Tracked",
     "tracking": "Tracking",
     "unknownStatus": "Unknown status",
-    "updatedToast": "Updated %{name}"
+    "updatedToast": "Updated %{name}",
+    "notAvailableWhileLoading": "غير متاح أثناء التحميل"
   },
   "readerScreen": {
     "bottomSheet": {
@@ -683,7 +701,10 @@
       "verticalSeekbarDescription": "Show a slider on the side to jump to any point in the chapter",
       "keepScreenOn": "إبقاء الشاشة مضاءة",
       "volumeButtonsScroll": "التمرير بأزرار الصوت",
-      "volumeButtonsScrollDescription": "Use the volume buttons to scroll instead of adjusting volume"
+      "volumeButtonsScrollDescription": "Use the volume buttons to scroll instead of adjusting volume",
+      "theme": "السمة",
+      "accessibility": "إمكانية الوصول",
+      "readingEnhancements": "تحسينات القراءة"
     },
     "drawer": {
       "scrollToBottom": "التمرير للأسفل",
@@ -696,7 +717,17 @@
     "noNextChapter": "لا يوجد فصل تالي",
     "noPreviousChapter": "لا يوجد فصل سابق",
     "searchMinLength": "Enter at least %{count} characters to search",
-    "searchPlaceholder": "Search chapter"
+    "searchPlaceholder": "Search chapter",
+    "tts": {
+      "title": "النطق الصوتي",
+      "enableTTS": "تشغيل النطق الصوتي",
+      "engine": "المحرك",
+      "voice": "الصوت",
+      "selectEngine": "اختر المحرك",
+      "selectVoice": "اختر الصوت",
+      "autoPageAdvance": "الانتقال التلقائي للصفحة",
+      "scrollToTop": "التمرير إلى الأعلى"
+    }
   },
   "readerSettings": {
     "autoScrollInterval": "فاصل التمرير (ثواني)",
@@ -722,7 +753,12 @@
     "textColorModal": "لون النص",
     "title": "القارئ",
     "verticalSeekbarDesc": "استخدم شريط تمرير رأسي",
-    "volumeButtonOffset": "Volume button scroll offset (screen heights)"
+    "volumeButtonOffset": "Volume button scroll offset (screen heights)",
+    "customColors": "ألوان مخصصة",
+    "tabDisplay": "العرض",
+    "tabTheme": "السمة",
+    "tabNavigation": "التنقل",
+    "tabAccessibility": "إمكانية الوصول"
   },
   "sourceScreen": {
     "noResultsFound": "لم يتم العثور على أي نتائج"
@@ -764,7 +800,8 @@
     "searchbar": "البحث في التحديثات",
     "unableToGetNovel": "تعذر جلب الرواية",
     "updatesLower": "تحديثات",
-    "updatingLibrary": "تحديث المكتبة"
+    "updatingLibrary": "تحديث المكتبة",
+    "noNovelsToUpdate": "لا توجد روايات لتحديثها"
   },
   "onboardingScreen": {
     "welcome": "مرحباً",
@@ -867,5 +904,45 @@
     "normalizationValuePlaceholder": "e.g. Sci-Fi",
     "noCategories": "No parent categories configured",
     "noNormalization": "No normalization rules configured"
+  },
+  "trackScreen": {
+    "status": "الحالة",
+    "score": "التقييم",
+    "chapters": "الفصول",
+    "password": "كلمة المرور",
+    "login": "تسجيل الدخول",
+    "loggingIn": "جارٍ تسجيل الدخول...",
+    "ok": "حسنًا",
+    "enterValidNumber": "أدخل رقمًا صحيحًا",
+    "statusLabels": {
+      "reading": "أقرأه الآن",
+      "planToRead": "أنوي قراءته",
+      "completed": "أكملته",
+      "dropped": "أوقفت قراءته",
+      "onHold": "متوقف مؤقتًا",
+      "rereading": "أعيد قراءته"
+    },
+    "malScores": {
+      "noScore": "بلا تقييم",
+      "appalling": "سيئ جدًا",
+      "worseThanBad": "أسوأ من سيئ",
+      "bad": "سيئ",
+      "average": "متوسط",
+      "good": "جيد",
+      "veryGood": "جيد جدًا",
+      "goodPlus": "جيد +",
+      "excellent": "ممتاز",
+      "masterpiece": "تحفة فنية"
+    }
+  },
+  "colorPicker": {
+    "hue": "درجة اللون",
+    "saturation": "التشبع",
+    "lightness": "السطوع",
+    "preview": "معاينة",
+    "contrast": "التباين",
+    "contrastLowWarning": "تباين منخفض — قد يصعب قراءة النص",
+    "contrastGood": "تباين مريح للقراءة",
+    "readerPresets": "ألوان جاهزة للقراءة"
   }
 }

@@ -99,6 +99,21 @@ const sanitizeOptions: sanitizeHtml.IOptions = {
     meta: ['charset', 'name', 'content', 'http-equiv'],
   },
   allowedSchemes: ['data', 'http', 'https', 'file'],
+  /**
+   * Long chapters can embed dozens of images; decoding off the main thread and
+   * lazy-loading below-fold images keeps first paint and scrolling smooth on
+   * low-memory devices.
+   */
+  transformTags: {
+    img: (tagName, attribs) => ({
+      tagName: 'img',
+      attribs: {
+        ...attribs,
+        loading: attribs.loading || 'lazy',
+        decoding: attribs.decoding || 'async',
+      },
+    }),
+  },
 };
 
 export const sanitizeChapterText = (

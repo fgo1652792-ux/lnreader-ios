@@ -463,7 +463,9 @@ export default function useChapter(
     // tick cannot both read the pre-toggle value.
     hiddenRef.current = nextHidden;
     webViewRef.current?.injectJavaScript(
-      `reader.hidden.val = ${nextHidden ? 'true' : 'false'}`,
+      `if (window.reader?.hidden) { reader.hidden.val = ${
+        nextHidden ? 'true' : 'false'
+      }; } true;`,
     );
     if (nextHidden) {
       setImmersiveMode();

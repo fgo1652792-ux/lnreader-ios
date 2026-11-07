@@ -7,6 +7,7 @@ import {
 import { TtsEngine, TtsVoice } from '@modules/nitro-tts';
 import { useMMKVObject } from 'react-native-mmkv';
 import { useEffect, useMemo } from 'react';
+import type React from 'react';
 import { getMMKVObject } from '@utils/mmkv/mmkv';
 import type { DateFormat } from '@utils/dateFormat';
 import type {
@@ -356,12 +357,28 @@ export const initialChapterReaderSettings: ChapterReaderSettings = {
   codeSnippetsJS: [],
 };
 
+/**
+ * Builds a settings writer that merges into the *latest* stored value instead
+ * of the render-time snapshot. The snapshot-based version lost updates when
+ * two writes happened in the same tick (e.g. a reset button writing two
+ * fields, or different components writing the same domain simultaneously).
+ */
+const createSettingsWriter = <T extends object>(key: string) => {
+  type Setter = React.Dispatch<React.SetStateAction<T | undefined>>;
+  return (setSettings: Setter, values: Partial<T>) => {
+    const latest = getMMKVObject<T>(key);
+    const base = latest ?? ({} as T);
+    setSettings({ ...base, ...values });
+  };
+};
+
 export const useAppSettings = () => {
   const [appSettings = initialAppSettings, setSettings] =
     useMMKVObject<AppSettings>(APP_SETTINGS);
 
+  const writeAppSettings = createSettingsWriter<AppSettings>(APP_SETTINGS);
   const setAppSettings = (values: Partial<AppSettings>) =>
-    setSettings({ ...appSettings, ...values });
+    writeAppSettings(setSettings, values);
 
   return {
     ...appSettings,
@@ -373,8 +390,11 @@ export const useBrowseSettings = () => {
   const [browseSettings = initialBrowseSettings, setSettings] =
     useMMKVObject<BrowseSettings>(BROWSE_SETTINGS);
 
+  const writeBrowseSettings = createSettingsWriter<BrowseSettings>(
+    BROWSE_SETTINGS,
+  );
   const setBrowseSettings = (values: Partial<BrowseSettings>) =>
-    setSettings({ ...browseSettings, ...values });
+    writeBrowseSettings(setSettings, values);
 
   return {
     ...browseSettings,
@@ -399,8 +419,11 @@ export const useLibrarySettings = () => {
   const [librarySettings, setSettings] =
     useMMKVObject<LibrarySettings>(LIBRARY_SETTINGS);
 
+  const writeLibrarySettings = createSettingsWriter<LibrarySettings>(
+    LIBRARY_SETTINGS,
+  );
   const setLibrarySettings = (value: Partial<LibrarySettings>) =>
-    setSettings({ ...librarySettings, ...value });
+    writeLibrarySettings(setSettings, value);
 
   return {
     ...{ ...defaultLibrarySettings, ...librarySettings },
@@ -412,8 +435,11 @@ export const useChapterGeneralSettings = () => {
   const [chapterGeneralSettings = initialChapterGeneralSettings, setSettings] =
     useMMKVObject<ChapterGeneralSettings>(CHAPTER_GENERAL_SETTINGS);
 
+  const writeGeneralSettings = createSettingsWriter<ChapterGeneralSettings>(
+    CHAPTER_GENERAL_SETTINGS,
+  );
   const setChapterGeneralSettings = (values: Partial<ChapterGeneralSettings>) =>
-    setSettings({ ...chapterGeneralSettings, ...values });
+    writeGeneralSettings(setSettings, values);
 
   return {
     ...chapterGeneralSettings,
@@ -445,18 +471,19 @@ export const useChapterReaderSettings = () => {
     [storedSettings],
   );
 
+  const writeReaderSettings = createSettingsWriter<ChapterReaderSettings>(
+    CHAPTER_READER_SETTINGS,
+  );
   const setChapterReaderSettings = (values: Partial<ChapterReaderSettings>) =>
-    setSettings({ ...chapterReaderSettings, ...values });
+    writeReaderSettings(setSettings, values);
 
   const saveCustomReaderTheme = (theme: ReaderTheme) =>
-    setSettings({
-      ...chapterReaderSettings,
+    writeReaderSettings(setSettings, {
       customThemes: [theme, ...chapterReaderSettings.customThemes],
     });
 
   const deleteCustomReaderTheme = (theme: ReaderTheme) =>
-    setSettings({
-      ...chapterReaderSettings,
+    writeReaderSettings(setSettings, {
       customThemes: chapterReaderSettings.customThemes.filter(
         v =>
           !(
