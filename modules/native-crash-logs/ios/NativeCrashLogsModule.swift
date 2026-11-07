@@ -18,24 +18,26 @@ public class NativeCrashLogsModule: Module {
   public func definition() -> ModuleDefinition {
     Name("NativeCrashLogs")
 
-    AsyncFunction("shareCrashLogs") { (_, _: Promise<Void>) in
+    AsyncFunction("shareCrashLogs") { (_: String, _: String, promise: Promise) in
       // No Logcat/FileProvider equivalent on iOS — nothing to share.
+      promise.resolve(())
     }
 
     Function("recordJsCrash") { (stackTrace: String) in
       NSLog("[LNReader][JS crash] %@", stackTrace)
     }
 
-    AsyncFunction("getPendingCrash") { (promise: Promise<String?>) in
+    AsyncFunction("getPendingCrash") { (promise: Promise) in
       promise.resolve(nil)
     }
 
-    AsyncFunction("clearPendingCrash") { (promise: Promise<Void>) in
+    AsyncFunction("clearPendingCrash") { (promise: Promise) in
       promise.resolve(())
     }
 
-    AsyncFunction("getDebugInfo") { (promise: Promise<[String: String?]>) in
-      promise.resolve(["webViewVersion": nil])
+    AsyncFunction("getDebugInfo") { (promise: Promise) in
+      let info: [String: String?] = ["webViewVersion": nil]
+      promise.resolve(info)
     }
 
     Function("restartApp") {
