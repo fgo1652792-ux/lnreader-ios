@@ -36,17 +36,21 @@ jobs:
     name: Gate on IPA build success
     if: >-
       github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       github.event.workflow_run.head_branch == 'ios-port')
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
-      - name: Confirm upstream success
+      - name: Confirm upstream success (workflow_run)
+        if: github.event_name == 'workflow_run'
         run: |
           echo "Upstream workflow: ${{ github.event.workflow_run.name }}"
           echo "Conclusion: ${{ github.event.workflow_run.conclusion }}"
           echo "Head SHA: ${{ github.event.workflow_run.head_sha }}"
           test "${{ github.event.workflow_run.conclusion }}" = "success"
+
+      - name: Manual dispatch (workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        run: echo "Manual run on ${{ github.ref_name }} — upstream gate not applicable"
 
   simulator-test:
     name: iPad 7th gen · iOS 18.5 · interaction tests
