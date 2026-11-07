@@ -70,7 +70,7 @@ final class LNReaderUITests: XCTestCase {
     return nil
   }
 
-  private func tapWhenReady(_ labels: [String], timeout: TimeInterval = 20,
+  private func tapWhenReady(_ labels: [String], _ timeout: TimeInterval = 20,
                             _ message: String) {
     let deadline = Date().addingTimeInterval(timeout)
     while Date() < deadline {
@@ -83,7 +83,7 @@ final class LNReaderUITests: XCTestCase {
     XCTFail("UI gate failed: \(message)")
   }
 
-  private func waitTappable(_ labels: [String], timeout: TimeInterval = 20,
+  private func waitTappable(_ labels: [String], _ timeout: TimeInterval = 20,
                             _ message: String) {
     let deadline = Date().addingTimeInterval(timeout)
     while Date() < deadline {
