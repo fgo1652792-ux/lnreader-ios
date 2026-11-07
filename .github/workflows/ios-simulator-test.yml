@@ -211,27 +211,42 @@ jobs:
           xcrun simctl bootstatus "$SIM_NAME" -b
           xcrun simctl list devices | grep -A 5 -i booted || true
 
-      - name: Install & launch app on simulator
+      - name: Install app on simulator (launch happens inside XCUITest)
         run: |
+          # NO manual launch here: heavy host-side steps below (brew/xcodegen/
+          # xcodebuild build-for-testing) starve the simulator's UI/keyboard
+          # queues and freeze the freshly launched app (UIKeyboardTaskQueue
+          # watchdog -> white screen). The app is launched by the test runner
+          # AFTER all heavy work is done.
           xcrun simctl install "$SIM_NAME" build-sim/Build/Products/Release-iphonesimulator/LNReader.app
-          set -x
-          xcrun simctl launch "$SIM_NAME" "$BUNDLE_ID"
 
       - name: Install xcodegen + generate e2e project
         run: |
           brew install xcodegen
           cd e2e && xcodegen generate
 
-      - name: Run UI interaction tests (XCUITest)
+      - name: Build UI test bundle (heavy host work, app not running)
         run: |
           set -o pipefail
           SIM_UDID=$(xcrun simctl list devices | grep "$SIM_NAME (" | grep -oE '[A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12}' | head -1)
-          echo "Simulator UDID: $SIM_UDID"
-          # The app is already installed + booted; terminate the manual launch
-          # so the test runner starts it cleanly.
-          xcrun simctl terminate "$SIM_NAME" "$BUNDLE_ID" 2>/dev/null || true
+          echo "SIM_UDID=$SIM_UDID" >> "$GITHUB_ENV"
           cd e2e
-          xcodebuild test \
+          xcodebuild build-for-testing \
+            -project LNReaderUITests.xcodeproj \
+            -scheme LNReaderUITests \
+            -destination "platform=iOS Simulator,id=$SIM_UDID" \
+            -derivedDataPath ../build-e2e \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            2>&1 | tee ../xcodebuild-e2e-build.log | xcbeautify --renderer github-actions
+
+      - name: Run UI interaction tests (XCUITest)
+        run: |
+          set -o pipefail
+          # All heavy host work is done; the app launches into a quiet host so
+          # the keyboard/UI queues cannot be starved mid-boot.
+          cd e2e
+          xcodebuild test-without-building \
             -project LNReaderUITests.xcodeproj \
             -scheme LNReaderUITests \
             -destination "platform=iOS Simulator,id=$SIM_UDID" \
