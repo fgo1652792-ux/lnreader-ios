@@ -6,9 +6,37 @@ import { getString } from '@i18n/translations';
 import { List, ColorPreferenceItem, Button } from '@components/index';
 import { useBoolean } from '@hooks';
 import { Portal } from 'react-native-paper';
-import ColorPickerModal from '@components/ColorPickerModal/ColorPickerModal';
+import ReaderColorPickerModal from '@components/ColorPickerModal/ReaderColorPickerModal';
+import { initialChapterReaderSettings } from '@hooks/persisted/useSettings';
 import ReaderThemeSelector from '@screens/reader/components/ReaderBottomSheet/ReaderThemeSelector';
 import { presetReaderThemes } from '@utils/constants/readerConstants';
+
+/** Comfortable single-color presets for each channel. */
+const BACKGROUND_PRESETS = [
+  '#FFFFFF',
+  '#F5F5FA',
+  '#F7DFC6',
+  '#DCE5E2',
+  '#E8E6E3',
+  '#CCE8CF',
+  '#292832',
+  '#1C1C1E',
+  '#161B22',
+  '#000000',
+];
+
+const TEXT_PRESETS = [
+  '#111111',
+  '#2C2C2C',
+  '#4A3B2A',
+  '#37474F',
+  '#593100',
+  '#8D6E63',
+  '#CCCCCC',
+  '#B0BEC5',
+  '#9E9E9E',
+  '#FFFFFF',
+];
 
 const ThemeTab: React.FC = () => {
   const theme = useTheme();
@@ -48,7 +76,9 @@ const ThemeTab: React.FC = () => {
         </View>
 
         <View style={styles.section}>
-          <List.SubHeader theme={theme}>Custom Colors</List.SubHeader>
+          <List.SubHeader theme={theme}>
+            {getString('readerSettings.customColors')}
+          </List.SubHeader>
           <ColorPreferenceItem
             label={getString('readerSettings.backgroundColor')}
             description={readerSettings.theme}
@@ -95,25 +125,41 @@ const ThemeTab: React.FC = () => {
       </BottomSheetScrollView>
 
       <Portal>
-        <ColorPickerModal
+        <ReaderColorPickerModal
           title={getString('readerSettings.backgroundColor')}
           visible={readerBackgroundModal.value}
           color={readerSettings.theme}
-          closeModal={readerBackgroundModal.setFalse}
+          otherColor={readerSettings.textColor}
+          editedChannel="background"
+          presets={BACKGROUND_PRESETS}
           theme={theme}
-          onSubmit={color =>
-            readerSettings.setChapterReaderSettings({ theme: color })
+          onConfirm={hex =>
+            readerSettings.setChapterReaderSettings({ theme: hex })
           }
+          onReset={() =>
+            readerSettings.setChapterReaderSettings({
+              theme: initialChapterReaderSettings.theme,
+            })
+          }
+          onDismiss={readerBackgroundModal.setFalse}
         />
-        <ColorPickerModal
+        <ReaderColorPickerModal
           title={getString('readerSettings.textColor')}
           visible={readerTextColorModal.value}
           color={readerSettings.textColor}
-          closeModal={readerTextColorModal.setFalse}
+          otherColor={readerSettings.theme}
+          editedChannel="text"
+          presets={TEXT_PRESETS}
           theme={theme}
-          onSubmit={color =>
-            readerSettings.setChapterReaderSettings({ textColor: color })
+          onConfirm={hex =>
+            readerSettings.setChapterReaderSettings({ textColor: hex })
           }
+          onReset={() =>
+            readerSettings.setChapterReaderSettings({
+              textColor: initialChapterReaderSettings.textColor,
+            })
+          }
+          onDismiss={readerTextColorModal.setFalse}
         />
       </Portal>
     </>
