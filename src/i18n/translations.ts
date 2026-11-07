@@ -134,6 +134,22 @@ const getSavedLocale = (): string => {
   }
 };
 
+/**
+ * All translation bundles except pt-BR/zh-CN/zh-TW are registered under bare
+ * language codes. Device tags like `ar-EG` or `pt-PT` would otherwise fall
+ * back to English (i18n-js has no prefix fallback), silently disabling RTL
+ * for Arabic device users — so narrow any unregistered tag to its base code.
+ */
+const normalizeLocale = (tag: string): string => {
+  if (!tag) {
+    return tag;
+  }
+  if (tag === 'pt-BR' || tag === 'zh-CN' || tag === 'zh-TW') {
+    return tag;
+  }
+  return tag.split('-')[0];
+};
+
 const getDayjsLocale = (locale: string): string => {
   const localeMap: Record<string, string> = {
     'no': 'nb', // Norwegian -> Norwegian Bokmål
@@ -145,10 +161,11 @@ const getDayjsLocale = (locale: string): string => {
 };
 
 const savedLocale = getSavedLocale();
-const detectedLocale =
+const detectedLocale = normalizeLocale(
   savedLocale ||
-  Localization.getLocales()[0]?.languageTag ||
-  i18n.defaultLocale;
+    Localization.getLocales()[0]?.languageTag ||
+    i18n.defaultLocale,
+);
 
 i18n.locale = detectedLocale;
 dayjs.locale(getDayjsLocale(detectedLocale));
@@ -162,6 +179,10 @@ export const setLocale = (locale: string) => {
     showToast(`Failed to set locale: ${error}`);
   }
 };
+
+/** Whether the given locale renders the UI right-to-left. */
+export const isRTLLocale = (locale: string): boolean =>
+  locale.startsWith('ar') || locale.startsWith('he');
 
 export { i18n };
 

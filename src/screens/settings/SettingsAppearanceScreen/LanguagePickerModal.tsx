@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import { StyleSheet } from 'react-native';
 
 import { useTheme } from '@hooks/persisted';
-import { Dialog, RadioButton } from '@components';
+import { Dialog, RadioButton, ConfirmationDialog } from '@components';
 import { getString, setLocale } from '@i18n/translations';
+import { restartApplication } from '@services/crashLogs/nativeCrashState';
 import { useMMKVString } from 'react-native-mmkv';
 import { FlatList } from 'react-native-gesture-handler';
 
@@ -76,10 +77,20 @@ const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
 }) => {
   const theme = useTheme();
   const [currentLocale = ''] = useMMKVString('APP_LOCALE');
+  const [pendingRestartLocale, setPendingRestartLocale] = useState<
+    string | null
+  >(null);
 
   const handleLanguageSelect = (locale: string) => {
     setLocale(locale);
-    onDismiss();
+    // Layout mirroring (I18nManager.forceRTL) needs freshly created views,
+    // so the UI is rebuilt via a React runtime reload. Offer it instead of
+    // forcing an immediate reload out of a modal the user is still reading.
+    setPendingRestartLocale(locale);
+  };
+
+  const applyNow = () => {
+    void restartApplication();
   };
 
   return (
@@ -109,6 +120,18 @@ const LanguagePickerModal: React.FC<LanguagePickerModalProps> = ({
           )}
         />
       </Dialog.ScrollArea>
+      <ConfirmationDialog
+        title={getString('appearanceScreen.languagePickerModal.title')}
+        message={getString(
+          'appearanceScreen.languagePickerModal.restartNote',
+        )}
+        confirmLabel={getString('appearanceScreen.languagePickerModal.applyNow')}
+        cancelLabel={getString('common.later')}
+        confirmTone="primary"
+        visible={pendingRestartLocale !== null}
+        onConfirm={applyNow}
+        onDismiss={() => setPendingRestartLocale(null)}
+      />
     </Dialog.Root>
   );
 };

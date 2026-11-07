@@ -49,6 +49,7 @@ export interface StringMap {
   'appearanceScreen.appLanguage': 'string';
   'appearanceScreen.languagePickerModal.title': 'string';
   'appearanceScreen.languagePickerModal.restartNote': 'string';
+  'appearanceScreen.languagePickerModal.applyNow': 'string';
   'appearanceScreen.appLanguageDefault': 'string';
   'appearanceScreen.appTheme': 'string';
   'appearanceScreen.darkTheme': 'string';

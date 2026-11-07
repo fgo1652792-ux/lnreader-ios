@@ -50,7 +50,8 @@
     "appLanguage": "App language",
     "languagePickerModal": {
       "title": "Select Language",
-      "restartNote": "You will need to restart the app for the language change to take full effect."
+      "restartNote": "You will need to restart the app for the language change to take full effect.",
+      "applyNow": "Apply now"
     },
     "appLanguageDefault": "Default",
     "appTheme": "App theme",
