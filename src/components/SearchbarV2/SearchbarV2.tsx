@@ -1,5 +1,5 @@
 import React, { memo, useRef, useState } from 'react';
-import { StyleSheet, View, TextInput } from 'react-native';
+import { I18nManager, StyleSheet, View, TextInput } from 'react-native';
 
 import IconButtonV2 from '../IconButtonV2/IconButtonV2';
 import { ThemeColors } from '../../theme/types';
@@ -75,7 +75,13 @@ const Searchbar: React.FC<SearcbarProps> = ({
               ? getString('common.back')
               : getString('common.search')
           }
-          name={handleBackAction ? 'arrow-left' : leftIcon}
+          name={
+            handleBackAction
+              ? I18nManager.isRTL
+                ? 'arrow-right'
+                : 'arrow-left'
+              : leftIcon
+          }
           color={theme.onSurface}
           onPress={() => {
             if (handleBackAction) {
