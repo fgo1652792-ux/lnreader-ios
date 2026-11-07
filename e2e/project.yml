@@ -1,0 +1,30 @@
+name: LNReaderUITests
+options:
+  bundleIdPrefix: io.lnreader.e2e
+  deploymentTarget:
+    iOS: '16.4'
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: '5.10'
+    CODE_SIGNING_ALLOWED: 'NO'
+    CODE_SIGN_IDENTITY: ''
+targets:
+  LNReaderUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - LNReaderUITests
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.lnreader.e2e.LNReaderUITests
+        GENERATE_INFOPLIST_FILE: 'YES'
+schemes:
+  LNReaderUITests:
+    build:
+      targets:
+        LNReaderUITests: [test]
+    test:
+      gatherCoverageData: false
+      targets:
+        - LNReaderUITests

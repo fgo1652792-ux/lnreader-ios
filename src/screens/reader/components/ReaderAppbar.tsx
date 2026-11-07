@@ -102,6 +102,7 @@ const ReaderAppbar = ({
 
   return (
     <Animated.View
+      testID="reader-appbar"
       entering={entering}
       exiting={exiting}
       style={[

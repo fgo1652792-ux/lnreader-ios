@@ -96,6 +96,7 @@ const ChapterFooter = ({
 
   return (
     <Animated.View
+      testID="reader-footer"
       entering={entering}
       exiting={exiting}
       style={[styles.footer, style]}

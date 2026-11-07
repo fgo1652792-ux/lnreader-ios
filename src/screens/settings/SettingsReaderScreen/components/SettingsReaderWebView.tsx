@@ -1,4 +1,4 @@
-import { StatusBar, StyleSheet } from 'react-native';
+import { StatusBar, StyleSheet, View } from 'react-native';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import WebView from 'react-native-webview';
 
@@ -167,6 +167,7 @@ const SettingsReaderWebView = ({
   }, [ttsProgress]);
 
   return (
+    <View testID="reader-preview" collapsable={false} style={styles.webView}>
     <WebView
       ref={webViewRef}
       originWhitelist={['*']}
@@ -294,6 +295,7 @@ const SettingsReaderWebView = ({
             `,
       }}
     />
+    </View>
   );
 };
 

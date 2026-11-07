@@ -29,15 +29,36 @@ type ReaderSettingsRoute = {
 };
 
 const routes: ReaderSettingsRoute[] = [
-  { key: 'display', title: 'Display', icon: 'format-size' },
-  { key: 'theme', title: 'Theme', icon: 'palette-outline' },
-  { key: 'navigation', title: 'Navigation', icon: 'gesture-swipe-horizontal' },
-  { key: 'accessibility', title: 'Accessibility', icon: 'account-voice' },
+  {
+    key: 'display',
+    title: getString('readerSettings.tabDisplay'),
+    icon: 'format-size',
+  },
+  {
+    key: 'theme',
+    title: getString('readerSettings.tabTheme'),
+    icon: 'palette-outline',
+  },
+  {
+    key: 'navigation',
+    title: getString('readerSettings.tabNavigation'),
+    icon: 'gesture-swipe-horizontal',
+  },
+  {
+    key: 'accessibility',
+    title: getString('readerSettings.tabAccessibility'),
+    icon: 'account-voice',
+  },
 ];
 
 const tabOptions: TabDescriptor<ReaderSettingsRoute> = {
   icon: ({ route, color: iconColor }) => (
-    <MaterialCommunityIcons name={route.icon} size={20} color={iconColor} />
+    <MaterialCommunityIcons
+      accessibilityLabel={route.title}
+      name={route.icon}
+      size={20}
+      color={iconColor}
+    />
   ),
   label: () => null,
 };

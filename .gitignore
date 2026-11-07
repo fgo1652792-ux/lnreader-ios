@@ -114,3 +114,7 @@ release-artifacts/
 !plugins/android/
 ios/
 !modules/**/ios/
+
+# Generated at CI time by xcodegen
+e2e/*.xcodeproj
+build-e2e/
