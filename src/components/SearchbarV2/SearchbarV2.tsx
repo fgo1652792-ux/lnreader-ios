@@ -1,11 +1,12 @@
 import React, { memo, useRef, useState } from 'react';
-import { I18nManager, StyleSheet, View, TextInput } from 'react-native';
+import { StyleSheet, View, TextInput } from 'react-native';
 
 import IconButtonV2 from '../IconButtonV2/IconButtonV2';
 import { ThemeColors } from '../../theme/types';
 import Menu from '../Menu';
 import { MaterialDesignIconName } from '@type/icon';
 import { getString } from '@i18n/translations';
+import { resolveAppIsRTL } from '@utils/rtl';
 import { Pressable } from 'react-native-gesture-handler';
 
 export interface RightIcon {
@@ -77,7 +78,7 @@ const Searchbar: React.FC<SearcbarProps> = ({
           }
           name={
             handleBackAction
-              ? I18nManager.isRTL
+              ? resolveAppIsRTL()
                 ? 'arrow-right'
                 : 'arrow-left'
               : leftIcon

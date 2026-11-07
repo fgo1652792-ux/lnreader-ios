@@ -26,7 +26,6 @@ import { useBackHandler } from '@hooks/index';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   InteractionManager,
-  I18nManager,
   Keyboard,
   Share,
   StyleSheet,
@@ -36,6 +35,7 @@ import { Drawer } from 'react-native-drawer-layout';
 import { EMPTY_READER_SEARCH_RESULT, ReaderSearchResult } from './types';
 import * as Linking from 'expo-linking';
 import { resolveUrl } from '@services/plugin/fetch';
+import { resolveAppIsRTL } from '@utils/rtl';
 
 const Chapter = ({ route, navigation }: ChapterScreenProps) => (
   <ChapterContextProvider
@@ -118,7 +118,7 @@ const ReaderDrawerLayout = ({ route, navigation }: ChapterScreenProps) => {
   return (
     <Drawer
       drawerStyle={drawerStyle}
-      drawerPosition={I18nManager.isRTL ? 'right' : 'left'}
+      drawerPosition={resolveAppIsRTL() ? 'right' : 'left'}
       open={open}
       onOpen={openDrawer}
       onClose={closeDrawer}

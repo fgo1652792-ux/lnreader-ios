@@ -5,6 +5,7 @@ import { TabView, type TabBarProps } from 'react-native-tab-view';
 import { useSearch } from '@hooks';
 import { useTheme } from '@hooks/persisted';
 import { getString } from '@i18n/translations';
+import { getAppDirection } from '@utils/rtl';
 
 import { SafeAreaView, SearchbarV2, TopTabBar } from '@components';
 import { BrowseScreenProps } from '@navigators/types';
@@ -157,6 +158,7 @@ const BrowseScreen = ({ navigation }: BrowseScreenProps) => {
         renderScene={renderScene}
         onIndexChange={setIndex}
         renderTabBar={renderTabBar}
+        direction={getAppDirection()}
         lazy
         lazyPreloadDistance={0}
         swipeEnabled={false}
